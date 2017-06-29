@@ -1,17 +1,3 @@
-Skip to content
-Features Business Explore Marketplace Pricing
-This repository
-Search
-Sign in or Sign up
- Watch 1  Star 0  Fork 0 SamSalonen/iReef
- Code  Issues 8  Pull requests 0  Projects 0 Insights 
-Branch: master Find file Copy pathiReef/notes.txt
-9a0a34e  on Jul 9, 2013
-@SamSalonen SamSalonen Initial idea notes
-1 contributor
-RawBlameHistory     
-75 lines (58 sloc)  1.95 KB
-2013-07-09
 
 Planned features for the controller:
 1. LED control
@@ -85,6 +71,4 @@ Planned features for the controller:
 	- Touch support for navigation and setups
 
 
-9. 
-Contact GitHub API Training Shop Blog About
-© 2017 GitHub, Inc. Terms Privacy Security Status Help
+++++++++ More
