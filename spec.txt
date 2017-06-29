@@ -1,5 +1,20 @@
+http://www.nengshi.com/en/ -- sensors
+
+
+
+***************** Hardware ***************** 
+
+Arduino mega / node mcu
+3.2" tft lcd with sd
+ds 1307 for time with battery backup
+8 original relay board
+8 ss relay board
+
+***************** Software ***************** 
 
 Planned features for the controller:
+
+
 1. LED control
 	- 1-6 individually controlled channels (#6 reserved for moonlight)
 	- Moonlight feature based on location and date/time
@@ -69,6 +84,22 @@ Planned features for the controller:
 	- Support for 1602, 2004 and TFT LCD (320x240px) displays
 	- Button support for navigation and setups
 	- Touch support for navigation and setups
+
+9. Notifications
+	-sound beep depending on error
+	-email warnings
+	-text serious errors
+
+
+
+
+
+
+
+
+100. Video (openCv)
+	use kinnect for live video streaming and growth monitoring
+
 
 
 ++++++++ More
