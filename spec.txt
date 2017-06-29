@@ -1,0 +1,90 @@
+Skip to content
+Features Business Explore Marketplace Pricing
+This repository
+Search
+Sign in or Sign up
+ Watch 1  Star 0  Fork 0 SamSalonen/iReef
+ Code  Issues 8  Pull requests 0  Projects 0 Insights 
+Branch: master Find file Copy pathiReef/notes.txt
+9a0a34e  on Jul 9, 2013
+@SamSalonen SamSalonen Initial idea notes
+1 contributor
+RawBlameHistory     
+75 lines (58 sloc)  1.95 KB
+2013-07-09
+
+Planned features for the controller:
+1. LED control
+	- 1-6 individually controlled channels (#6 reserved for moonlight)
+	- Moonlight feature based on location and date/time
+	- Dimming trough PWM using Mean Well ELN-xx-xx drivers
+	- Sunrise & sunset modes
+	- Storm mode (?)
+	- Light dimming based on temperature in tank
+		- Automatically dim lights -25% if temp over X
+		- Automatically dim lights -50% if temp over X +1
+		- Automatically dim lights -75% if temp over X +2
+		- Automatically dim lights -100% if temp over X +4
+	
+
+2. Environment monitoring
+	- Temperature monitoring using 1-wire Dallas DS1820 probes (1-n readings)
+	- Temperature & humidity monitoring usin DTH11 or DTH22 probes
+	- pH monitoring
+	- ORP monitoring
+	- Conductivity monitoring
+
+	
+3. Pump control
+	- Support for Tunze electronic pumps (1-10V)
+	- Support for Jaebo WP40 and WP25 pumps (1-5V)
+	- Pre defined flow patterns (copied from Ecotech)
+		- Tidal Swell Mode
+		- Nutrient Transport Mode
+		- Reef Crest Mode
+		- Lagoonal Mode
+		- Short Pulse (0,5s | 1s)
+		- Long Pulse (2s | 3s | 5s | 10s)
+	- User configurable modes
+
+
+4. Heater control
+	- Connected to DB1820 probes utilizing relay switches
+	- if temp > x relay(LOW);
+	- if temp < x relay(HIGH);
+
+
+5. Fan control
+	- Fan on if temperature rises above set value in tank (DS1820)
+	- Fan on if humidity rises over set value in cabinet (DTH11/22)
+	
+
+6. ATO monitoring
+	- Float switches to monitor water level in tank/sump
+	- Monitoring amount of water in ATO tank
+
+
+7. Web interface for monitoring and setup
+	- Login
+	- Current status
+		- Temperatures
+		- pH, ORP, Conductivity
+		- LED status (on/off, intesivity% per channel)
+		- Pump status (mode/power)
+		- Heater status (on/off)
+		- Fan status (on/off)
+	- LED setup
+		- Adjust lights timing and power
+	- Pump setup
+		- Adjust modes
+
+
+8. LCD display
+	- Support for 1602, 2004 and TFT LCD (320x240px) displays
+	- Button support for navigation and setups
+	- Touch support for navigation and setups
+
+
+9. 
+Contact GitHub API Training Shop Blog About
+© 2017 GitHub, Inc. Terms Privacy Security Status Help
