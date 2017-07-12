@@ -8,7 +8,8 @@ Arduino mega / node mcu
 3.2" tft lcd with sd
 ds 1307 for time with battery backup
 8 original relay board
-8 ss relay board
+8 ss relay board 
+relays conected through shift register
 
 ***************** Software ***************** 
 
