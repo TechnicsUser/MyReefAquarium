@@ -1,7 +1,7 @@
 /*
-   implement time ds 1037 .. ?
+  
   upload new sketch via bluetooth
-  setup relays
+ 
   setup wave control
   setup auto top up ... done but has delay
   track ph over 24 hour
@@ -19,7 +19,7 @@
 #include <DallasTemperature.h>
 
 // Data wire is plugged into port 2 on the Arduino
-#define ONE_WIRE_BUS 19
+#define ONE_WIRE_BUS A0
 
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -62,9 +62,9 @@ Time  t2;
 float volt4 = 2.966;// increment to lower. 3.171 worked ...3.341;
 float volt7 = 2.5108;//2.684;  myCal 2.5108
 float calibrationTempC = 18.1;
-int phPin = A0;
-int tempPin = A3;
-int calPin = 8;
+int phPin = A1;
+
+
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 int relayPin = 13;
@@ -116,7 +116,7 @@ float minPh = 0;
 float minTemp = 0;
 float maxTemp = 0;
 int x;
-int sampleSize = 500;
+int sampleSize = 5;
 
 float avgMeasuredPH = 0;
 float avgRoomTempMeasuredPH = 0;
@@ -157,6 +157,8 @@ void setup(void) {
 //  digitalWrite(light3, HIGH);   // turn the LED on (HIGH is the voltage level)
 
   //++++++++++++++++++++ CLOCK ++++++++++++++++++++++++++++++++++++++++++++++++
+    // Initialize the rtc object
+  rtc.begin();
   rtc.halt(false);
 
   t = rtc.getTime();
@@ -195,8 +197,8 @@ void setup(void) {
 
   // +++++++++++++++++++ PH & TEMPRETURE +++++++++++++++++++++++++++++++++++++++++++++++++
   
-//  sensors.begin();
-//  Alarm.timerRepeat(10, readPh);           // ph
+ sensors.begin();
+  Alarm.timerRepeat(30, readPh);           // ph
 //  Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
 //
 
@@ -244,8 +246,10 @@ void loop() {
   //    }
 }
 void readPh() {
-  float tempAdjusted4 = getTempAdjusted4();
+    //  Serial.print(" measuredPH-11");
 
+  float tempC = sensors.getTempCByIndex(0);  
+    float tempAdjusted4 = getTempAdjusted4();
   for (x = 0; x < sampleSize; x++)
   {
 
@@ -282,8 +286,8 @@ void readPh() {
   //  phTime[2] = s + phRunTime[2];
   //  lastReadPhTime = rtc.getTime();
 
-  //    Serial.print(" measuredPH-");
-  //    Serial.print(avgMeasuredPH,4);
+    Serial.print(" measuredPH = ");
+ Serial.print(avgMeasuredPH,4);
   //    Serial.print(" roomTempMeasuredPH-");
   //    Serial.print(avgRoomTempMeasuredPH,4);
   //    Serial.print(" tempC-");
@@ -298,7 +302,7 @@ void readPh() {
   //    Serial.println(tempAdjusted4,4);
   dataString = avgMeasuredPH;
   // dataString += t.hour;
-  writeToSd();
+ // writeToSd();
 }
 float measurePHVolts()
 {
@@ -350,13 +354,13 @@ float measureTempC()
   sensors.requestTemperatures(); // Send the command to get temperatures
 //  Serial.println("DONE");
 //  Serial.print("Temperature for the device 1 (index 0) is: ");
-  Serial.println(sensors.getTempCByIndex(0));  
+ // Serial.println(sensors.getTempCByIndex(0));  
   
 //  float tempADC = analogRead(tempPin);
 //  float tempVolts = (tempADC / 1024) * 5.0;
 //  float tempC = (tempVolts / 0.010);
 //  return tempC;
-return sensors.getTempCByIndex(0);
+return 29.99;
 }
 
 
@@ -829,6 +833,12 @@ void digitalClockDisplay() {
   printDigits( t.min);
   printDigits(t.sec);
   Serial.println();
+    Serial.print("Requesting temperatures...");
+  sensors.requestTemperatures(); // Send the command to get temperatures
+  Serial.println("DONE");
+  
+  Serial.print("Temperature for the device 1 (index 0) is: ");
+  Serial.println(sensors.getTempCByIndex(0));  
 }
 
 void printDigits(int digits) {

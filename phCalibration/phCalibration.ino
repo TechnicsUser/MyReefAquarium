@@ -1,6 +1,17 @@
 
 //#include <EEPROM.h>
 //#include <LCD5110.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+// Data wire is plugged into port 2 on the Arduino
+#define ONE_WIRE_BUS A0
+
+// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+OneWire oneWire(ONE_WIRE_BUS);
+
+// Pass our oneWire reference to Dallas Temperature. 
+DallasTemperature sensors(&oneWire);
 
 //My scratch notes
 //measuredPH-6.8580 roomTempMeasuredPH-6.8965 
@@ -19,15 +30,17 @@ float calibrationTempC = 18.1;
 
 
 int phPin = A1;
-int tempPin = A3;
 int calPin = 8;
 int relayPin =13;
 
 void setup()
-{
+{  Serial.begin(9600);
+  Serial.println("Dallas Temperature IC Control Library Demo");
+
+  // Start up the library
+  sensors.begin();
    // LcdInitialise();
  //   LcdClear();
-    Serial.begin(9600);
     
     pinMode(relayPin,OUTPUT);
     digitalWrite(relayPin,LOW);
@@ -80,10 +93,18 @@ float doPHTempCompensation(float PH, float temp)
 
 float measureTempC()
 {
-    float tempADC = analogRead(tempPin);
-    float tempVolts = (tempADC/1024)*5.0;
-    float tempC = (tempVolts/0.010);
-    return tempC; 
+//    float tempADC = analogRead(tempPin);
+//    float tempVolts = (tempADC/1024)*5.0;
+//    float tempC = (tempVolts/0.010);
+//    return tempC; 
+   //   Serial.print("Requesting temperatures...");
+ sensors.requestTemperatures(); // Send the command to get temperatures
+  //Serial.println("DONE");
+  
+ // Serial.print("Temperature for the device 1 (index 0) is: ");
+  float tempC = sensors.getTempCByIndex(0);  
+
+  return tempC; 
 }
 
 
@@ -192,9 +213,9 @@ char * floatToString(char * outstr, float value, int places, int minwidth=0, boo
 
 void loop()
 {
-  //delay(100);
+ delay(100);
     int x;
-    int sampleSize = 5000;
+    int sampleSize = 5;
 
     float avgMeasuredPH= 0;
     float avgRoomTempMeasuredPH =0;
@@ -203,14 +224,20 @@ void loop()
     float avgVoltsPerPH =0;
     float phTemp = 0;
  
-    
+     sensors.requestTemperatures(); // Send the command to get temperatures
+  //Serial.println("DONE");
+  
+ // Serial.print("Temperature for the device 1 (index 0) is: ");
+  float tempC = sensors.getTempCByIndex(0);  
     float tempAdjusted4 = getTempAdjusted4();
 
     for(x=0;x< sampleSize;x++)
     {
 
         float measuredPH = measurePH();
-        float phTemp = measureTempC();
+     sensors.requestTemperatures(); // Send the command to get temperatures
+
+        float phTemp = sensors.getTempCByIndex(0); 
         float roomTempPH = doPHTempCompensation(measuredPH, phTemp);
        
         float phVolt = measurePHVolts();
