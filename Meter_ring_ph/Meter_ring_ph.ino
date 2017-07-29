@@ -19,7 +19,7 @@
 #include <DallasTemperature.h>
 
 // Data wire is plugged into port 2 on the Arduino
-#define ONE_WIRE_BUS 21
+#define ONE_WIRE_BUS 19
 
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -147,54 +147,65 @@ void setup(void) {
   pinMode(light1, OUTPUT);
   pinMode(light2, OUTPUT);
   pinMode(light3, OUTPUT);
- 
+//   digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
+//  digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
+//   digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
+   digitalWrite(skimmer, HIGH);   // turn the LED on (HIGH is the voltage level)
+   digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
+//  digitalWrite(light1, HIGH);   // turn the LED on (HIGH is the voltage level)
+//   digitalWrite(light2, HIGH);   // turn the LED on (HIGH is the voltage level)
+//  digitalWrite(light3, HIGH);   // turn the LED on (HIGH is the voltage level)
+
   //++++++++++++++++++++ CLOCK ++++++++++++++++++++++++++++++++++++++++++++++++
   rtc.halt(false);
 
   t = rtc.getTime();
   setTime(t.hour, t.min, t.sec, t.mon, t.date, t.year); // set time
-
+// Alarm.timerOnce(10, OnceOnly);  
+//   Alarm.timerOnce(20, OnceOnly);            // called once after 10 seconds
+//  Alarm.timerOnce(30, OnceOnly);            // called once after 10 seconds
+ 
   //++++++++++++++++++ LIGHTS +++++++++++++++++++++++++++++++++++++++++++++++++++++
   
   // create the alarms for lights to trigger at specific times
-  Alarm.alarmRepeat(6, 30, 0, MorningAlarmAccitic); // 6:30am every day
-  Alarm.alarmRepeat(12, 30, 0, MorningAlarm); // 12:30pm every day
-  Alarm.alarmRepeat(2, 30, 0, DayOnAlarm); // 2:30pm every day
-  Alarm.alarmRepeat(8, 00, 0, DayOffAlarm); // 8:00 pm every day
-  Alarm.alarmRepeat(21, 00, 0, EveningAlarm); // 9:45pm every day
-  Alarm.alarmRepeat(22, 30, 0, EveningAlarmAccitic); // 10:30pm every day
+  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 5, MorningAlarmAcitic); // 6:30am every day
+  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 10, MorningAlarm); // 12:30pm every day
+  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 15, DayOnAlarm); // 2:30pm every day
+  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 20, DayOffAlarm); // 8:00 pm every day
+  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 25, EveningAlarm); // 9:45pm every day
+  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 30, EveningAlarmAcitic); // 10:30pm every day
 
 
   //+++++++++++++++++ POWERHEADS +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  
 
   
-    Alarm.timerRepeat(0, 1, 5, lphPulse);         // lph
-    Alarm.timerRepeat(0, 1, 5, mphPulse);         // lph
-    Alarm.timerRepeat(0, 1, 5, sphPulse);         // lph
+    Alarm.timerRepeat(5, lphPulse);         // lph
+    Alarm.timerRepeat(12, mphPulse);         // lph
+    Alarm.timerRepeat(20, sphPulse);         // lph
 
-  
+ //   Alarm.timerRepeat(15, lphPulse);  
   
   //+++++++++++++++AUTO TOP OFF ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   
-  Alarm.alarmRepeat(01, 00, 0, resetPumpCount); // 1:00am every day
-
-  Alarm.alarmRepeat(dowSaturday, 8, 30, 30, MorningAlarm); // 8:30:30 every Saturday
-  Alarm.alarmRepeat(dowSunday, 8, 30, 30, MorningAlarm); // 8:30:30 every Sunday
+//  Alarm.alarmRepeat(01, 00, 0, resetPumpCount); // 1:00am every day
+//
+//  Alarm.alarmRepeat(dowSaturday, 8, 30, 30, MorningAlarm); // 8:30:30 every Saturday
+//  Alarm.alarmRepeat(dowSunday, 8, 30, 30, MorningAlarm); // 8:30:30 every Sunday
 
   // +++++++++++++++++++ PH & TEMPRETURE +++++++++++++++++++++++++++++++++++++++++++++++++
   
-  sensors.begin();
-  Alarm.timerRepeat(10, readPh);           // ph
-  Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
-
+//  sensors.begin();
+//  Alarm.timerRepeat(10, readPh);           // ph
+//  Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
+//
 
   //++++++++++++++++++++ DISPLAY ++++++++++++++++++++++++++++++++++++++++++++++++++++++
  tft.begin();
   tft.setRotation(1);
   tft.fillScreen(HX8357_BLACK);
 
-Alarm.timerRepeat(2, updateDisplay);           // Display
+//Alarm.timerRepeat(2, updateDisplay);           // Display
 
 
   // create timers, to trigger relative to when they're created
@@ -229,7 +240,7 @@ void loop() {
   //     runTime = millis();
   xpos = 480 / 2 - 160, ypos = 0, gap = 15, radius = 170;
   //      ringMeter(maxPh, minPh, minTemp, maxTemp, avgRoomTempMeasuredPH, avgTemp, 6, 9, xpos, ypos, radius, " Ph", GREEN2RED ); // Draw analogue meter ,maxPh,minPh,minTemp, maxTemp
-  Alarm.delay(2000); // wait one second between clock display
+  Alarm.delay(1000); // wait one second between clock display
   //    }
 }
 void readPh() {
@@ -701,39 +712,41 @@ void writeToSd( ) {
 }
 
 void lphPulse() {
-  if (!lphIsOn) {
-//    Serial.println("Alarm: - lph On");
+  if (lphIsOn) {
+  Serial.println("Alarm: - lph On");
   digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
-    lphIsOn = true;
+    lphIsOn = false;
   }
   else {
-//    Serial.println("Alarm: - lph off");
+    Serial.println("Alarm: - lph off");
   digitalWrite(lph, LOW);   // turn the LED on (HIGH is the voltage level)
+      lphIsOn = true;
+
   }
 }
 void mphPulse() {
-  if (!mphIsOn) {
-//    Serial.println("Alarm: - lph On");
+  if (mphIsOn) {
+     Serial.println("Alarm: - mph On");
   digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
-    mphIsOn = true;
+    mphIsOn = false;
   }
   else {
-//    Serial.println("Alarm: - lph off");
+    Serial.println("Alarm: - mph off");
   digitalWrite(mph, LOW);   // turn the LED on (HIGH is the voltage level)
-    mphIsOn = false;
+    mphIsOn = true;
 
   }
 }
 void sphPulse() {
-  if (!sphIsOn) {
-//    Serial.println("Alarm: - lph On");
+  if (sphIsOn) {
+     Serial.println("Alarm: - sph On");
   digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
-    sphIsOn = true;
+    sphIsOn = false;
   }
   else {
-//    Serial.println("Alarm: - lph off");
+    Serial.println("Alarm: - sph off");
   digitalWrite(sph, LOW);   // turn the LED on (HIGH is the voltage level)
-      sphIsOn = false;
+      sphIsOn = true;
 
   }
 }
@@ -753,10 +766,13 @@ pumpRunCount++;
   Alarm.timerOnce(10, pumpOff);            // called once after 10 seconds
 
 }
-void MorningAlarmAccitic() {
+void MorningAlarmAcitic() {
+    Serial.println("MorningAlarmAcitic");
+
   digitalWrite(light1, HIGH);   // turn the LED on (HIGH is the voltage level)
 }
 void MorningAlarm() {
+      Serial.println("MorningAlarm ");
   digitalWrite(light2, HIGH);   // turn the LED on (HIGH is the voltage level)
 }
 void DayOnAlarm() {
@@ -768,7 +784,7 @@ void DayOffAlarm() {
 void EveningAlarm() {
   digitalWrite(light2, LOW);   // turn the LED on (HIGH is the voltage level)
 }
-void EveningAlarmAccitic() {
+void EveningAlarmAcitic() {
   digitalWrite(light1, LOW);   // turn the LED on (HIGH is the voltage level)
 }
 void resetPumpCount(){
@@ -803,21 +819,15 @@ void Repeats2() {
 
 void OnceOnly() {
   Serial.println("This timer only triggers once, stop the 2 second timer");
-  Serial.println("pump off");
-
-  // use Alarm.free() to disable a timer and recycle its memory.
-  Alarm.free(id);
-  // optional, but safest to "forget" the ID after memory recycled
-  id = dtINVALID_ALARM_ID;
-  // you can also use Alarm.disable() to turn the timer off, but keep
-  // it in memory, to turn back on later with Alarm.enable().
+lphPulse();
 }
 
 void digitalClockDisplay() {
   // digital clock display of the time
-  Serial.print(hour());
-  printDigits(minute());
-  printDigits(second());
+ t = rtc.getTime();
+  Serial.print( t.hour);
+  printDigits( t.min);
+  printDigits(t.sec);
   Serial.println();
 }
 
