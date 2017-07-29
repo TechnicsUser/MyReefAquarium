@@ -1,6 +1,6 @@
 /*
    implement time ds 1037 .. ?
-
+  upload new sketch via bluetooth
   setup relays
   setup wave control
   setup auto top up ... done but has delay
@@ -10,18 +10,29 @@
 
 */
 
-// Meter colour schemes
-#include <TFT_HX8357.h> // Hardware-specific library
+#include <TFT_HX8357.h> 
 #include <SD.h>
 #include <TimeLib.h>
 #include <TimeAlarms.h>
 #include <DS1307.h>
-// Init the DS1307
-DS1307 rtc(20, 21);
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+// Data wire is plugged into port 2 on the Arduino
+#define ONE_WIRE_BUS 21
+
+
+// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+OneWire oneWire(ONE_WIRE_BUS);
+
+// Pass our oneWire reference to Dallas Temperature. 
+DallasTemperature sensors(&oneWire);
+
+
+DS1307 rtc(20, 21);// Init the DS1307
 AlarmId id;
 Time  t;
 Time  t2;
-boolean lphIsOn = true;
 
 #define RED2RED 0
 #define GREEN2GREEN 1
@@ -29,18 +40,33 @@ boolean lphIsOn = true;
 #define BLUE2RED 3
 #define GREEN2RED 4
 #define RED2GREEN 5
-float volt4 = 2.966;// add to, to lower 3.171 worked ...3.341;
+//+++++++++++++++ SOLID STATE RELAY'S++++++++++++++++++++
+//Powerheads
+#define lph 2     // RELAY1                        
+#define mph 3     // RELAY2                      
+#define sph 4     // RELAY3   
+                  
+#define skimmer  5 // RELAY4
+#define heater  6 // RELAY5  
+
+//Lights
+#define light1  7 // RELAY6                        
+#define light2  8 // RELAY7               
+#define light3  9 // RELAY8
+
+//+++++++++++++++ OLD SKOOL RELAY'S++++++++++++++++++++
+// TODO
+
+//++++++++++++++++++ PH +++++++++++++++++++++++++++++++++++
+
+float volt4 = 2.966;// increment to lower. 3.171 worked ...3.341;
 float volt7 = 2.5108;//2.684;  myCal 2.5108
 float calibrationTempC = 18.1;
-
-
-
-//A3 = temp
-//A2 = PH
-//CALIBRATE = D8
 int phPin = A0;
 int tempPin = A3;
 int calPin = 8;
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 int relayPin = 13;
 int floatNumOne = 1;
 int topUpPump = 2;
@@ -102,45 +128,81 @@ String dataString = "";
 int xpos = 0, ypos = 5, gap = 4, radius = 52;
 
 
-void setup(void) {
-  pinMode(relayPin, OUTPUT);
 
-  tft.begin();
+boolean lphIsOn = true;
+boolean mphIsOn = true;
+boolean sphIsOn = true;
+
+void setup(void) {
+
   Serial.begin(9600);
-  tft.setRotation(1);
-  tft.fillScreen(HX8357_BLACK);
+
+//++++++++++++++++++++++ RELAYS ++++++++++++++++++++++++++++++++++++++++++++++
+
+  pinMode(lph, OUTPUT);
+  pinMode(mph, OUTPUT);
+  pinMode(sph, OUTPUT);
+  pinMode(heater, OUTPUT);
+  pinMode(skimmer, OUTPUT);
+  pinMode(light1, OUTPUT);
+  pinMode(light2, OUTPUT);
+  pinMode(light3, OUTPUT);
+ 
+  //++++++++++++++++++++ CLOCK ++++++++++++++++++++++++++++++++++++++++++++++++
   rtc.halt(false);
 
   t = rtc.getTime();
   setTime(t.hour, t.min, t.sec, t.mon, t.date, t.year); // set time
-  /*
 
-
-     ph every 30 sec
-
-     powerheads
-  */
-  // create the alarms, to trigger at specific times
+  //++++++++++++++++++ LIGHTS +++++++++++++++++++++++++++++++++++++++++++++++++++++
+  
+  // create the alarms for lights to trigger at specific times
   Alarm.alarmRepeat(6, 30, 0, MorningAlarmAccitic); // 6:30am every day
   Alarm.alarmRepeat(12, 30, 0, MorningAlarm); // 12:30pm every day
+  Alarm.alarmRepeat(2, 30, 0, DayOnAlarm); // 2:30pm every day
+  Alarm.alarmRepeat(8, 00, 0, DayOffAlarm); // 8:00 pm every day
   Alarm.alarmRepeat(21, 00, 0, EveningAlarm); // 9:45pm every day
   Alarm.alarmRepeat(22, 30, 0, EveningAlarmAccitic); // 10:30pm every day
+
+
+  //+++++++++++++++++ POWERHEADS +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+
+  
+    Alarm.timerRepeat(0, 1, 5, lphPulse);         // lph
+    Alarm.timerRepeat(0, 1, 5, mphPulse);         // lph
+    Alarm.timerRepeat(0, 1, 5, sphPulse);         // lph
+
+  
+  
+  //+++++++++++++++AUTO TOP OFF ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  
   Alarm.alarmRepeat(01, 00, 0, resetPumpCount); // 1:00am every day
 
   Alarm.alarmRepeat(dowSaturday, 8, 30, 30, MorningAlarm); // 8:30:30 every Saturday
   Alarm.alarmRepeat(dowSunday, 8, 30, 30, MorningAlarm); // 8:30:30 every Sunday
 
-  // triggers
+  // +++++++++++++++++++ PH & TEMPRETURE +++++++++++++++++++++++++++++++++++++++++++++++++
+  
+  sensors.begin();
   Alarm.timerRepeat(10, readPh);           // ph
-  Alarm.timerRepeat(0, 1, 5, lphOn);         // lph
   Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
-  Alarm.timerRepeat(2, updateDisplay);           // Display
+
+
+  //++++++++++++++++++++ DISPLAY ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ tft.begin();
+  tft.setRotation(1);
+  tft.fillScreen(HX8357_BLACK);
+
+Alarm.timerRepeat(2, updateDisplay);           // Display
 
 
   // create timers, to trigger relative to when they're created
   // id = Alarm.timerRepeat(2, Repeats2);      // timer for every 2 seconds
   // Alarm.timerOnce(10, OnceOnly);            // called once after 10 seconds
 
+
+//++++++++++++++++++++++ SD CARD +++++++++++++++++++++++++++++++++++++++++++++++++++++
   //    if (!SD.begin(SDC_CS)) {
   //      Serial.println(F("failed!"));
   //      //return;
@@ -154,18 +216,9 @@ void setup(void) {
     return;
   }
   Serial.println("card initialized.");
-  digitalWrite(relayPin, LOW);   // turn the LED on (HIGH is the voltage level)
-
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 }
 
-//void startUp(int h, int m, int s) {
-//  while (startup) {
-//    lphOnTime[0] = h;
-//    lphOnTime[1] = m;
-//    lphOnTime[2] = s;
-//    startup = false;
-//  }
-//}
 void loop() {
 
 
@@ -283,10 +336,16 @@ float doPHTempCompensation(float PH, float temp)
 
 float measureTempC()
 {
-  float tempADC = analogRead(tempPin);
-  float tempVolts = (tempADC / 1024) * 5.0;
-  float tempC = (tempVolts / 0.010);
-  return tempC;
+  sensors.requestTemperatures(); // Send the command to get temperatures
+//  Serial.println("DONE");
+//  Serial.print("Temperature for the device 1 (index 0) is: ");
+  Serial.println(sensors.getTempCByIndex(0));  
+  
+//  float tempADC = analogRead(tempPin);
+//  float tempVolts = (tempADC / 1024) * 5.0;
+//  float tempC = (tempVolts / 0.010);
+//  return tempC;
+return sensors.getTempCByIndex(0);
 }
 
 
@@ -561,9 +620,7 @@ void autoTopUp(int pumpTime) {
 
  
 }
-//void startRunWaves(int h, int m) {
-//lphOnTime[0] = h;
-//lphOnTime[1] = m; }
+
 void runWaves(int h, int m, int s) {
   // run 3 puwer heads alternatley over 24 hour period, calmer at night
   //largePowerHead, mediumPowerHead, smallPowerHead
@@ -643,14 +700,41 @@ void writeToSd( ) {
   }
 }
 
-void lphOn() {
+void lphPulse() {
   if (!lphIsOn) {
-    Serial.println("Alarm: - lph On");
+//    Serial.println("Alarm: - lph On");
+  digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
     lphIsOn = true;
   }
   else {
-    Serial.println("Alarm: - lph off");
-    lphIsOn = false;
+//    Serial.println("Alarm: - lph off");
+  digitalWrite(lph, LOW);   // turn the LED on (HIGH is the voltage level)
+  }
+}
+void mphPulse() {
+  if (!mphIsOn) {
+//    Serial.println("Alarm: - lph On");
+  digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
+    mphIsOn = true;
+  }
+  else {
+//    Serial.println("Alarm: - lph off");
+  digitalWrite(mph, LOW);   // turn the LED on (HIGH is the voltage level)
+    mphIsOn = false;
+
+  }
+}
+void sphPulse() {
+  if (!sphIsOn) {
+//    Serial.println("Alarm: - lph On");
+  digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
+    sphIsOn = true;
+  }
+  else {
+//    Serial.println("Alarm: - lph off");
+  digitalWrite(sph, LOW);   // turn the LED on (HIGH is the voltage level)
+      sphIsOn = false;
+
   }
 }
 void checkTopUp() {
@@ -669,19 +753,23 @@ pumpRunCount++;
   Alarm.timerOnce(10, pumpOff);            // called once after 10 seconds
 
 }
-// light functions
-// functions to be called when an alarm triggers:
 void MorningAlarmAccitic() {
-  Serial.println("Alarm: - turn blue lights on");
+  digitalWrite(light1, HIGH);   // turn the LED on (HIGH is the voltage level)
 }
 void MorningAlarm() {
-  Serial.println("Alarm: - turn white lights on");
+  digitalWrite(light2, HIGH);   // turn the LED on (HIGH is the voltage level)
+}
+void DayOnAlarm() {
+  digitalWrite(light3, HIGH);   // turn the LED on (HIGH is the voltage level)
+}
+void DayOffAlarm() {
+  digitalWrite(light3, LOW);   // turn the LED on (HIGH is the voltage level)
 }
 void EveningAlarm() {
-  Serial.println("Alarm: - turn white lights off");
+  digitalWrite(light2, LOW);   // turn the LED on (HIGH is the voltage level)
 }
 void EveningAlarmAccitic() {
-  Serial.println("Alarm: - turn blue lights off");
+  digitalWrite(light1, LOW);   // turn the LED on (HIGH is the voltage level)
 }
 void resetPumpCount(){
   pumpRunCount = 0;
