@@ -42,7 +42,8 @@ void setup()
   sensors.begin();
    // LcdInitialise();
  //   LcdClear();
-    
+        //pinMode(tempPin,INPUT);
+
     pinMode(relayPin,OUTPUT);
     digitalWrite(relayPin,LOW);
 }
@@ -231,6 +232,7 @@ void loop()
  // Serial.print("Temperature for the device 1 (index 0) is: ");
   float tempC = sensors.getTempCByIndex(0);  
     float tempAdjusted4 = getTempAdjusted4();
+         phTemp = measureTempC(); 
 
     for(x=0;x< sampleSize;x++)
     {
@@ -238,7 +240,7 @@ void loop()
         float measuredPH = measurePH();
      sensors.requestTemperatures(); // Send the command to get temperatures
 
-        float phTemp = sensors.getTempCByIndex(0); 
+        float phTemp2 = measureTempC(); 
         float roomTempPH = doPHTempCompensation(measuredPH, phTemp);
        
         float phVolt = measurePHVolts();
@@ -258,8 +260,8 @@ void loop()
     Serial.print(avgMeasuredPH,4);
     Serial.print(" roomTempMeasuredPH-");
     Serial.print(avgRoomTempMeasuredPH,4);
-    Serial.print(" tempC-");
-    Serial.print(avgTemp,4);
+    Serial.print(" PHtempC-");
+    Serial.print(phTemp,4);
     Serial.print(" phVolts-");
     Serial.print(avgPHVolts,4);
     Serial.print(" 7CalVolts-");

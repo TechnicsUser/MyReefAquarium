@@ -198,7 +198,7 @@ void setup(void) {
   // +++++++++++++++++++ PH & TEMPRETURE +++++++++++++++++++++++++++++++++++++++++++++++++
   
  sensors.begin();
-  Alarm.timerRepeat(30, readPh);           // ph
+  Alarm.timerRepeat(0,1,30, readPh);           // ph
 //  Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
 //
 
