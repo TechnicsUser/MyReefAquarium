@@ -17,6 +17,11 @@
 #include <DS1307.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include<stdlib.h>
+char chrTemp [3];
+char chrPh [5];
+
+char chrTempIn [6];
 
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS A0
@@ -33,6 +38,7 @@ DS1307 rtc(20, 21);// Init the DS1307
 AlarmId id;
 Time  t;
 Time  t2;
+String incomingByte = "abc";   // for incoming serial data
 
 #define RED2RED 0
 #define GREEN2GREEN 1
@@ -132,10 +138,11 @@ int xpos = 0, ypos = 5, gap = 4, radius = 52;
 boolean lphIsOn = true;
 boolean mphIsOn = true;
 boolean sphIsOn = true;
+boolean skimmerPower = true;
 
 void setup(void) {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
 //++++++++++++++++++++++ RELAYS ++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -198,7 +205,7 @@ void setup(void) {
   // +++++++++++++++++++ PH & TEMPRETURE +++++++++++++++++++++++++++++++++++++++++++++++++
   
  sensors.begin();
-  Alarm.timerRepeat(0,1,30, readPh);           // ph
+  Alarm.timerRepeat(0,0,10, readPh);           // ph
 //  Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
 //
 
@@ -233,7 +240,28 @@ void setup(void) {
 }
 
 void loop() {
+        // send data only when you receive data:
+        if (Serial.available() > 0) {
+                // read the incoming byte:
+                incomingByte = Serial.readString();
+            if (incomingByte == "skimmerStatus"){
+               Serial.print("I received: skimmerStatus ");
+               Serial.print(skimmerPower);
 
+            }
+        if(incomingByte == "skimmer"){
+          Serial.print("s");
+
+         Serial.print(skimmerPower);
+         flipSkimmer();
+        }
+//                // say what you got:
+//                Serial.print("I received: ");
+//                Serial.println(incomingByte);
+//                String Slph = "lph";
+
+        }
+       
 
   digitalClockDisplay();
 
@@ -286,11 +314,13 @@ void readPh() {
   //  phTime[2] = s + phRunTime[2];
   //  lastReadPhTime = rtc.getTime();
 
-    Serial.print(" measuredPH = ");
- Serial.print(avgMeasuredPH,4);
+  //  Serial.print(" measuredPH = ");
+  dtostrf(avgMeasuredPH, 6, 4, chrPh);// This is where I get confused, I read that the 6 is the length of the number
+ String s = chrPh;
+ Serial.print("ph" + s);
   //    Serial.print(" roomTempMeasuredPH-");
   //    Serial.print(avgRoomTempMeasuredPH,4);
-  //    Serial.print(" tempC-");
+     Serial.print(avgMeasuredPH);
   //    Serial.print(avgTemp,4);
   //    Serial.print(" phVolts-");
   //    Serial.print(avgPHVolts,4);
@@ -360,7 +390,7 @@ float measureTempC()
 //  float tempVolts = (tempADC / 1024) * 5.0;
 //  float tempC = (tempVolts / 0.010);
 //  return tempC;
-return 29.99;
+return 99.99;
 }
 
 
@@ -714,15 +744,27 @@ void writeToSd( ) {
     dataFile.close();
   }
 }
+void flipSkimmer() {
+  if (skimmerPower) {
+  Serial.println("Alarm: - skimmer On");
+  digitalWrite(skimmer, HIGH);   // turn the LED on (HIGH is the voltage level)
+    skimmerPower = false;
+  }
+  else {
+    Serial.println("Alarm: - skimmer off");
+  digitalWrite(skimmer, LOW);   // turn the LED on (HIGH is the voltage level)
+      skimmerPower = true;
 
+  }
+}
 void lphPulse() {
   if (lphIsOn) {
-  Serial.println("Alarm: - lph On");
+ // Serial.println("Alarm: - lph On");
   digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
     lphIsOn = false;
   }
   else {
-    Serial.println("Alarm: - lph off");
+  //  Serial.println("Alarm: - lph off");
   digitalWrite(lph, LOW);   // turn the LED on (HIGH is the voltage level)
       lphIsOn = true;
 
@@ -730,12 +772,12 @@ void lphPulse() {
 }
 void mphPulse() {
   if (mphIsOn) {
-     Serial.println("Alarm: - mph On");
+  //   Serial.println("Alarm: - mph On");
   digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
     mphIsOn = false;
   }
   else {
-    Serial.println("Alarm: - mph off");
+ //   Serial.println("Alarm: - mph off");
   digitalWrite(mph, LOW);   // turn the LED on (HIGH is the voltage level)
     mphIsOn = true;
 
@@ -743,12 +785,12 @@ void mphPulse() {
 }
 void sphPulse() {
   if (sphIsOn) {
-     Serial.println("Alarm: - sph On");
+   //  Serial.println("Alarm: - sph On");
   digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
     sphIsOn = false;
   }
   else {
-    Serial.println("Alarm: - sph off");
+ //   Serial.println("Alarm: - sph off");
   digitalWrite(sph, LOW);   // turn the LED on (HIGH is the voltage level)
       sphIsOn = true;
 
@@ -829,16 +871,26 @@ lphPulse();
 void digitalClockDisplay() {
   // digital clock display of the time
  t = rtc.getTime();
-  Serial.print( t.hour);
-  printDigits( t.min);
-  printDigits(t.sec);
-  Serial.println();
-    Serial.print("Requesting temperatures...");
-  sensors.requestTemperatures(); // Send the command to get temperatures
-  Serial.println("DONE");
+ // Serial.print( t.hour + t.min + t.sec);
+//  printDigits( t.min);
+//  printDigits(t.sec);
+ // Serial.println();
+ //   Serial.println("Requesting temperatures...");
+ // sensors.requestTemperatures(); // Send the command to get temperatures
+//  Serial.println("DONE");
+ // String tempOut = "temp" , sensors.getTempCByIndex(0)
+//  Serial.print("Temperature for the device 1 (index 0) is: ");
+ // Serial.println(tempOut); 
+    dtostrf(sensors.getTempCByIndex(0), 6, 4, chrTemp);// This is where I get confused, I read that the 6 is the length of the number
+ String s = chrTemp;
+ //   Serial.println("\n");
+
+   Serial.println("temp" + s);
+
+ // char outChar [12];
+ // outChar = chrTemp + chrTempIn;
+//  Serial.println(chrTemp);
   
-  Serial.print("Temperature for the device 1 (index 0) is: ");
-  Serial.println(sensors.getTempCByIndex(0));  
 }
 
 void printDigits(int digits) {

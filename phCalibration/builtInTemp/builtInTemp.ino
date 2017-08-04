@@ -98,7 +98,7 @@ float measureTempC()
     float tempADC = analogRead(tempPin);
     float tempVolts = (tempADC/1024)*5.0;
     float tempC = (tempVolts/0.010);
-    return tempC; 
+    return tempADC; 
 //   //   Serial.print("Requesting temperatures...");
 // sensors.requestTemperatures(); // Send the command to get temperatures
 //  //Serial.println("DONE");
@@ -256,10 +256,10 @@ void loop()
     avgTemp /= sampleSize;
     avgPHVolts /= sampleSize;
     
-    Serial.print(" measuredPH-");
-    Serial.print(avgMeasuredPH,4);
-    Serial.print(" roomTempMeasuredPH-");
-    Serial.print(avgRoomTempMeasuredPH,4);
+//    Serial.print(" measuredPH-");
+//    Serial.print(avgMeasuredPH,4);
+//    Serial.print(" roomTempMeasuredPH-");
+//    Serial.print(avgRoomTempMeasuredPH,4);
     Serial.print(" PHtempC-");
     Serial.print(phTemp,4);
     Serial.print(" phVolts-");
