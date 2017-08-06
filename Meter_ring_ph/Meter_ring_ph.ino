@@ -1,16 +1,16 @@
 /*
-  
+
   upload new sketch via bluetooth
- 
+
   setup wave control
-  setup auto top up ... done but has delay
+  setup auto top up ... some done but has delay
   track ph over 24 hour
   track temp over 24 hour
   different menu's for temp, relays, wave control
 
 */
 
-#include <TFT_HX8357.h> 
+#include <TFT_HX8357.h>
 #include <SD.h>
 #include <TimeLib.h>
 #include <TimeAlarms.h>
@@ -25,20 +25,17 @@ char chrTempIn [6];
 
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS A0
-
-
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
-
-// Pass our oneWire reference to Dallas Temperature. 
+// Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
 
 
 DS1307 rtc(20, 21);// Init the DS1307
-AlarmId id;
+AlarmId aIdMorningLights;
 Time  t;
 Time  t2;
-String incomingByte = "abc";   // for incoming serial data
+String incomingString = "abc";   // for incoming serial data
 
 #define RED2RED 0
 #define GREEN2GREEN 1
@@ -50,10 +47,10 @@ String incomingByte = "abc";   // for incoming serial data
 //Powerheads
 #define lph 2     // RELAY1                        
 #define mph 3     // RELAY2                      
-#define sph 4     // RELAY3   
-                  
-#define skimmer  5 // RELAY4
-#define heater  6 // RELAY5  
+#define sph 6     // RELAY3   
+
+#define heater  5 // RELAY4  
+#define skimmer  4 // RELAY5
 
 //Lights
 #define light1  7 // RELAY6                        
@@ -139,12 +136,14 @@ boolean lphIsOn = true;
 boolean mphIsOn = true;
 boolean sphIsOn = true;
 boolean skimmerPower = true;
+boolean heaterPower = true;
+
 
 void setup(void) {
 
   Serial.begin(115200);
 
-//++++++++++++++++++++++ RELAYS ++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++ RELAYS ++++++++++++++++++++++++++++++++++++++++++++++
 
   pinMode(lph, OUTPUT);
   pinMode(mph, OUTPUT);
@@ -154,67 +153,67 @@ void setup(void) {
   pinMode(light1, OUTPUT);
   pinMode(light2, OUTPUT);
   pinMode(light3, OUTPUT);
-//   digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
-//  digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
-//   digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
-   digitalWrite(skimmer, HIGH);   // turn the LED on (HIGH is the voltage level)
-   digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
-//  digitalWrite(light1, HIGH);   // turn the LED on (HIGH is the voltage level)
-//   digitalWrite(light2, HIGH);   // turn the LED on (HIGH is the voltage level)
-//  digitalWrite(light3, HIGH);   // turn the LED on (HIGH is the voltage level)
+      digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
+     digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
+      digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(skimmer, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
+//    digitalWrite(light1, HIGH);   // turn the LED on (HIGH is the voltage level)
+//      digitalWrite(light2, HIGH);   // turn the LED on (HIGH is the voltage level)
+//     digitalWrite(light3, HIGH);   // turn the LED on (HIGH is the voltage level)
 
   //++++++++++++++++++++ CLOCK ++++++++++++++++++++++++++++++++++++++++++++++++
-    // Initialize the rtc object
+  // Initialize the rtc object
   rtc.begin();
   rtc.halt(false);
 
   t = rtc.getTime();
   setTime(t.hour, t.min, t.sec, t.mon, t.date, t.year); // set time
-// Alarm.timerOnce(10, OnceOnly);  
-//   Alarm.timerOnce(20, OnceOnly);            // called once after 10 seconds
-//  Alarm.timerOnce(30, OnceOnly);            // called once after 10 seconds
- 
+  // Alarm.timerOnce(10, OnceOnly);
+  //   Alarm.timerOnce(20, OnceOnly);            // called once after 10 seconds
+  //  Alarm.timerOnce(30, OnceOnly);            // called once after 10 seconds
+
   //++++++++++++++++++ LIGHTS +++++++++++++++++++++++++++++++++++++++++++++++++++++
-  
+
   // create the alarms for lights to trigger at specific times
-  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 5, MorningAlarmAcitic); // 6:30am every day
-  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 10, MorningAlarm); // 12:30pm every day
-  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 15, DayOnAlarm); // 2:30pm every day
-  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 20, DayOffAlarm); // 8:00 pm every day
-  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 25, EveningAlarm); // 9:45pm every day
-  Alarm.alarmRepeat(t.hour,  t.min,t.sec + 30, EveningAlarmAcitic); // 10:30pm every day
+  aIdMorningLights =  Alarm.alarmRepeat(10, 00, 00, MorningAlarmAcitic); // 6:30am every day
+  Alarm.alarmRepeat(10,  30,00, MorningAlarm); // 12:30pm every day
+  Alarm.alarmRepeat(11,  30, 00, DayOnAlarm); // 2:30pm every day
+  Alarm.alarmRepeat(20, 00, 00, DayOffAlarm); // 8:00 pm every day
+  Alarm.alarmRepeat(21, 00,00, EveningAlarm); // 9:45pm every day
+  Alarm.alarmRepeat(22,00, 00, EveningAlarmAcitic); // 10:30pm every day
 
 
   //+++++++++++++++++ POWERHEADS +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 
 
-  
-    Alarm.timerRepeat(5, lphPulse);         // lph
-    Alarm.timerRepeat(12, mphPulse);         // lph
-    Alarm.timerRepeat(20, sphPulse);         // lph
 
- //   Alarm.timerRepeat(15, lphPulse);  
-  
+
+  Alarm.timerRepeat(60, lphPulse);         // lph
+  Alarm.timerRepeat(120, mphPulse);         // lph
+  Alarm.timerRepeat(30, sphPulse);         // lph
+
+  //   Alarm.timerRepeat(15, lphPulse);
+
   //+++++++++++++++AUTO TOP OFF ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  
-//  Alarm.alarmRepeat(01, 00, 0, resetPumpCount); // 1:00am every day
-//
-//  Alarm.alarmRepeat(dowSaturday, 8, 30, 30, MorningAlarm); // 8:30:30 every Saturday
-//  Alarm.alarmRepeat(dowSunday, 8, 30, 30, MorningAlarm); // 8:30:30 every Sunday
+
+  //  Alarm.alarmRepeat(01, 00, 0, resetPumpCount); // 1:00am every day
+  //
+  //  Alarm.alarmRepeat(dowSaturday, 8, 30, 30, MorningAlarm); // 8:30:30 every Saturday
+  //  Alarm.alarmRepeat(dowSunday, 8, 30, 30, MorningAlarm); // 8:30:30 every Sunday
 
   // +++++++++++++++++++ PH & TEMPRETURE +++++++++++++++++++++++++++++++++++++++++++++++++
-  
- sensors.begin();
-  Alarm.timerRepeat(0,0,10, readPh);           // ph
-//  Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
-//
+
+  sensors.begin();
+  Alarm.timerRepeat(0, 0, 30, readPh);         // ph
+  //  Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
+  //
 
   //++++++++++++++++++++ DISPLAY ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- tft.begin();
+  tft.begin();
   tft.setRotation(1);
   tft.fillScreen(HX8357_BLACK);
 
-//Alarm.timerRepeat(2, updateDisplay);           // Display
+  //Alarm.timerRepeat(2, updateDisplay);           // Display
 
 
   // create timers, to trigger relative to when they're created
@@ -222,12 +221,12 @@ void setup(void) {
   // Alarm.timerOnce(10, OnceOnly);            // called once after 10 seconds
 
 
-//++++++++++++++++++++++ SD CARD +++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++ SD CARD +++++++++++++++++++++++++++++++++++++++++++++++++++++
   //    if (!SD.begin(SDC_CS)) {
   //      Serial.println(F("failed!"));
   //      //return;
   //    }
-  Serial.print("Initializing SD card...");
+ // Serial.print("Initializing SD card...");
 
   // see if the card is present and can be initialized:
   if (!SD.begin(SDC_CS)) {
@@ -236,32 +235,65 @@ void setup(void) {
     return;
   }
   Serial.println("card initialized.");
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 }
 
 void loop() {
-        // send data only when you receive data:
-        if (Serial.available() > 0) {
-                // read the incoming byte:
-                incomingByte = Serial.readString();
-            if (incomingByte == "skimmerStatus"){
-               Serial.print("I received: skimmerStatus ");
-               Serial.print(skimmerPower);
+  // send data only when you receive data:
+  if (Serial.available() > 0) {
+    // read the incoming byte:
+    incomingString = Serial.readString();
+    if (incomingString == "skimmerStatus") {
+      Serial.print("I received: skimmerStatus ");
+      Serial.print(skimmerPower);
 
-            }
-        if(incomingByte == "skimmer"){
-          Serial.print("s");
+    }
+    if (incomingString == "heater") {
+      Serial.print("h");
 
-         Serial.print(skimmerPower);
-         flipSkimmer();
-        }
-//                // say what you got:
-//                Serial.print("I received: ");
-//                Serial.println(incomingByte);
-//                String Slph = "lph";
+      Serial.print(heaterPower);
+      flipHeater();
+    }
+    if (incomingString == "skimmer") {
+      Serial.print("s");
 
-        }
-       
+      Serial.print(skimmerPower);
+      flipSkimmer();
+    }
+    //                // say what you got:
+    //                Serial.print("I received: ");
+    //                Serial.println(incomingString);
+    //                String Slph = "lph";
+
+  }
+  if (incomingString.startsWith("sph")) {
+    String strValue = incomingString.substring(3, 5);
+    int value = strValue.toInt();
+
+    //   Serial.print("strValue");
+    sphSpeed(value);
+    //  Serial.print("sphSpeed");
+
+  }
+  if (incomingString.startsWith("light1")) {
+    // use Alarm.free() to disable a timer and recycle its memory.
+    Alarm.free(aIdMorningLights);
+    // optional, but safest to "forget" the ID after memory recycled
+    aIdMorningLights = dtINVALID_ALARM_ID;
+    // you can also use Alarm.disable() to turn the timer off, but keep
+    // it in memory, to turn back on later with Alarm.enable().
+
+    String strHour = incomingString.substring(6, 7);
+    int intHour = strHour.toInt();
+    String strMin = incomingString.substring(8, 9);
+    int intMin = strMin.toInt();
+    String strSec = incomingString.substring(10, 11);
+    int intSec = strSec.toInt();
+    aIdMorningLights =  Alarm.alarmRepeat(intHour, intMin, intSec, MorningAlarmAcitic); // 6:30am every day
+    Serial.print(strHour + strMin + strSec);
+
+  }
+
 
   digitalClockDisplay();
 
@@ -274,10 +306,10 @@ void loop() {
   //    }
 }
 void readPh() {
-    //  Serial.print(" measuredPH-11");
+  //  Serial.print(" measuredPH-11");
 
-  float tempC = sensors.getTempCByIndex(0);  
-    float tempAdjusted4 = getTempAdjusted4();
+  float tempC = sensors.getTempCByIndex(0);
+  float tempAdjusted4 = getTempAdjusted4();
   for (x = 0; x < sampleSize; x++)
   {
 
@@ -316,11 +348,11 @@ void readPh() {
 
   //  Serial.print(" measuredPH = ");
   dtostrf(avgMeasuredPH, 6, 4, chrPh);// This is where I get confused, I read that the 6 is the length of the number
- String s = chrPh;
- Serial.print("ph" + s);
+  String s = chrPh;
+  Serial.print("ph" + s);
   //    Serial.print(" roomTempMeasuredPH-");
   //    Serial.print(avgRoomTempMeasuredPH,4);
-     Serial.print(avgMeasuredPH);
+  Serial.print(avgMeasuredPH);
   //    Serial.print(avgTemp,4);
   //    Serial.print(" phVolts-");
   //    Serial.print(avgPHVolts,4);
@@ -332,7 +364,7 @@ void readPh() {
   //    Serial.println(tempAdjusted4,4);
   dataString = avgMeasuredPH;
   // dataString += t.hour;
- // writeToSd();
+  // writeToSd();
 }
 float measurePHVolts()
 {
@@ -382,15 +414,15 @@ float doPHTempCompensation(float PH, float temp)
 float measureTempC()
 {
   sensors.requestTemperatures(); // Send the command to get temperatures
-//  Serial.println("DONE");
-//  Serial.print("Temperature for the device 1 (index 0) is: ");
- // Serial.println(sensors.getTempCByIndex(0));  
-  
-//  float tempADC = analogRead(tempPin);
-//  float tempVolts = (tempADC / 1024) * 5.0;
-//  float tempC = (tempVolts / 0.010);
-//  return tempC;
-return 99.99;
+  //  Serial.println("DONE");
+  //  Serial.print("Temperature for the device 1 (index 0) is: ");
+  // Serial.println(sensors.getTempCByIndex(0));
+
+  //  float tempADC = analogRead(tempPin);
+  //  float tempVolts = (tempADC / 1024) * 5.0;
+  //  float tempC = (tempVolts / 0.010);
+  //  return tempC;
+  return 99.99;
 }
 
 
@@ -663,7 +695,7 @@ float sineWave(int phase) {
 //setup auto top up
 void autoTopUp(int pumpTime) {
 
- 
+
 }
 
 void runWaves(int h, int m, int s) {
@@ -721,14 +753,14 @@ void writeToSd( ) {
   dataString += minute();
   dataString += " | ";
   dataString += t.date;
-    dataString += "/";
+  dataString += "/";
 
- dataString += t.mon;
-   dataString += "/";
+  dataString += t.mon;
+  dataString += "/";
 
-   dataString += t.year;
-      dataString += " | ";
-     dataString += pumpRunCount;
+  dataString += t.year;
+  dataString += " | ";
+  dataString += pumpRunCount;
   // if the file is available, write to it:
   if (dataFile) {
     dataFile.println(dataString);
@@ -746,55 +778,72 @@ void writeToSd( ) {
 }
 void flipSkimmer() {
   if (skimmerPower) {
-  Serial.println("Alarm: - skimmer On");
-  digitalWrite(skimmer, HIGH);   // turn the LED on (HIGH is the voltage level)
+    Serial.println("Alarm: - skimmer On");
+    digitalWrite(skimmer, HIGH);   // turn the LED on (HIGH is the voltage level)
     skimmerPower = false;
   }
   else {
     Serial.println("Alarm: - skimmer off");
-  digitalWrite(skimmer, LOW);   // turn the LED on (HIGH is the voltage level)
-      skimmerPower = true;
+    digitalWrite(skimmer, LOW);   // turn the LED on (HIGH is the voltage level)
+    skimmerPower = true;
+
+  }
+}
+void flipHeater() {
+  if (heaterPower) {
+    Serial.println("Alarm: - heater On");
+    digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
+    heaterPower = false;
+  }
+  else {
+    Serial.println("Alarm: - heater off");
+    digitalWrite(heater, LOW);   // turn the LED on (HIGH is the voltage level)
+    heaterPower = true;
 
   }
 }
 void lphPulse() {
   if (lphIsOn) {
- // Serial.println("Alarm: - lph On");
-  digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
+    // Serial.println("Alarm: - lph On");
+    digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
     lphIsOn = false;
   }
   else {
-  //  Serial.println("Alarm: - lph off");
-  digitalWrite(lph, LOW);   // turn the LED on (HIGH is the voltage level)
-      lphIsOn = true;
+    //  Serial.println("Alarm: - lph off");
+    digitalWrite(lph, LOW);   // turn the LED on (HIGH is the voltage level)
+    lphIsOn = true;
 
   }
 }
 void mphPulse() {
   if (mphIsOn) {
-  //   Serial.println("Alarm: - mph On");
-  digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
+    //   Serial.println("Alarm: - mph On");
+    digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
     mphIsOn = false;
   }
   else {
- //   Serial.println("Alarm: - mph off");
-  digitalWrite(mph, LOW);   // turn the LED on (HIGH is the voltage level)
+    //   Serial.println("Alarm: - mph off");
+    digitalWrite(mph, LOW);   // turn the LED on (HIGH is the voltage level)
     mphIsOn = true;
 
   }
 }
 void sphPulse() {
   if (sphIsOn) {
-   //  Serial.println("Alarm: - sph On");
-  digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
+    //  Serial.println("Alarm: - sph On");
+    digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
     sphIsOn = false;
   }
   else {
- //   Serial.println("Alarm: - sph off");
-  digitalWrite(sph, LOW);   // turn the LED on (HIGH is the voltage level)
-      sphIsOn = true;
+    //   Serial.println("Alarm: - sph off");
+    digitalWrite(sph, LOW);   // turn the LED on (HIGH is the voltage level)
+    sphIsOn = true;
 
   }
+}
+void sphSpeed(int s) {
+  analogWrite(sph, s);   // turn the LED on (HIGH is the voltage level)
+
 }
 void checkTopUp() {
   //if float is low //read float switch
@@ -802,23 +851,23 @@ void checkTopUp() {
     //run pump for given time
     topUpPump = HIGH;
     // count pumps
-pumpRunCount++;
+    pumpRunCount++;
     //retest float switch
   }
   // run pump
   //create alarm to turn pump off
   Serial.println("pump on");
-  
+
   Alarm.timerOnce(10, pumpOff);            // called once after 10 seconds
 
 }
 void MorningAlarmAcitic() {
-    Serial.println("MorningAlarmAcitic");
+  Serial.println("MorningAlarmAcitic");
 
   digitalWrite(light1, HIGH);   // turn the LED on (HIGH is the voltage level)
 }
 void MorningAlarm() {
-      Serial.println("MorningAlarm ");
+  Serial.println("MorningAlarm ");
   digitalWrite(light2, HIGH);   // turn the LED on (HIGH is the voltage level)
 }
 void DayOnAlarm() {
@@ -833,11 +882,11 @@ void EveningAlarm() {
 void EveningAlarmAcitic() {
   digitalWrite(light1, LOW);   // turn the LED on (HIGH is the voltage level)
 }
-void resetPumpCount(){
+void resetPumpCount() {
   pumpRunCount = 0;
 }
 void pumpOff() {
-      topUpPump = LOW;
+  topUpPump = LOW;
 
   Serial.println("pump off");
 
@@ -865,32 +914,32 @@ void Repeats2() {
 
 void OnceOnly() {
   Serial.println("This timer only triggers once, stop the 2 second timer");
-lphPulse();
+  lphPulse();
 }
 
 void digitalClockDisplay() {
   // digital clock display of the time
- t = rtc.getTime();
- // Serial.print( t.hour + t.min + t.sec);
-//  printDigits( t.min);
-//  printDigits(t.sec);
- // Serial.println();
- //   Serial.println("Requesting temperatures...");
- // sensors.requestTemperatures(); // Send the command to get temperatures
-//  Serial.println("DONE");
- // String tempOut = "temp" , sensors.getTempCByIndex(0)
-//  Serial.print("Temperature for the device 1 (index 0) is: ");
- // Serial.println(tempOut); 
-    dtostrf(sensors.getTempCByIndex(0), 6, 4, chrTemp);// This is where I get confused, I read that the 6 is the length of the number
- String s = chrTemp;
- //   Serial.println("\n");
+  t = rtc.getTime();
+  // Serial.print( t.hour + t.min + t.sec);
+  //  printDigits( t.min);
+  //  printDigits(t.sec);
+  // Serial.println();
+  //   Serial.println("Requesting temperatures...");
+  // sensors.requestTemperatures(); // Send the command to get temperatures
+  //  Serial.println("DONE");
+  // String tempOut = "temp" , sensors.getTempCByIndex(0)
+  //  Serial.print("Temperature for the device 1 (index 0) is: ");
+  // Serial.println(tempOut);
+  dtostrf(sensors.getTempCByIndex(0), 6, 4, chrTemp);// This is where I get confused, I read that the 6 is the length of the number
+  String s = chrTemp;
+  //   Serial.println("\n");
 
-   Serial.println("temp" + s);
+  Serial.println("temp" + s);
 
- // char outChar [12];
- // outChar = chrTemp + chrTempIn;
-//  Serial.println(chrTemp);
-  
+  // char outChar [12];
+  // outChar = chrTemp + chrTempIn;
+  //  Serial.println(chrTemp);
+
 }
 
 void printDigits(int digits) {

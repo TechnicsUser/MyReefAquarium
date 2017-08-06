@@ -1,3 +1,9 @@
+// Short out bnc connector, trim pot till phVolt reads 2.5000
+// Measure temp of calibration solutions, enter reading
+// Ph buffer 7, enter reading
+// Ph buffer 4, enter reading
+
+
 
 //#include <EEPROM.h>
 //#include <LCD5110.h>
@@ -17,34 +23,29 @@ DallasTemperature sensors(&oneWire);
 //measuredPH-6.8580 roomTempMeasuredPH-6.8965 
 //tempC-28.0195 phVolts-2.3535 7CalVolts-2.3047 4CalVolts-3.3594 4CalTempAdjusted-3.9640
 
-
-//float volt4 = 3.359;
-//float volt7 = 2.304;
+// 1/5/2017
+//float volt4 = 3.171;
+//float volt7 = 2.684;
 //float calibrationTempC = 21;
 
-float volt4 = 3.26;//3.171 worked ...3.341;
-float volt7 = 2.5108;//2.684;
-float calibrationTempC = 18.1;
-
-
-
+// 6/8/2017
+float volt4 = 3.2300; 
+float volt7 = 2.6924; //2.7150
+float calibrationTempC = 21.4;
 
 int phPin = A1;
 int tempPin = A3;
-int calPin = 8;
-int relayPin =13;
+int calPin = 8;  // used to short bnc 
 
 void setup()
 {  Serial.begin(9600);
-  Serial.println("Dallas Temperature IC Control Library Demo");
+  Serial.println("Dallas Temperature IC Control Library Started");
 
   // Start up the library
   sensors.begin();
    // LcdInitialise();
  //   LcdClear();
-    
-    pinMode(relayPin,OUTPUT);
-    digitalWrite(relayPin,LOW);
+
 }
 
 float measurePHVolts()
@@ -214,7 +215,7 @@ char * floatToString(char * outstr, float value, int places, int minwidth=0, boo
 
 void loop()
 {
- delay(100);
+ delay(1);
     int x;
     int sampleSize = 5;
 
@@ -290,18 +291,7 @@ void loop()
 //    floatToString(charBuffer,avgPHVolts,3);
 //    LcdString(charBuffer);
   
-    if(avgMeasuredPH > 7.9)
-    {
-      digitalWrite(relayPin,HIGH);
-//      gotoXY(4,4);
-//      LcdString("dosing on");
-    }
-    else
-    {
-      digitalWrite(relayPin,LOW);
-//      gotoXY(4,4);
-//      LcdString("dosing off");
-    }
+
 
 
 }
