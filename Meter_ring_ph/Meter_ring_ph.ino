@@ -218,7 +218,7 @@ void setup(void) {
 
 
 
- // Alarm.timerRepeat(95, lphPulse);         
+  Alarm.timerRepeat(7200, lphPulse);         
   Alarm.timerRepeat(1200, mphPulse);         
 //  Alarm.timerRepeat(50, sphPulse);          
 
@@ -838,17 +838,16 @@ void flipHeater() {
   }
 }
 void lphPulse() {
-  if (lphIsOn) {
-    // Serial.println("Alarm: - lph On");
+ 
     digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
+    Alarm.timerOnce(300, lphOn); // 5 MINS
     lphIsOn = false;
-  }
-  else {
-    //  Serial.println("Alarm: - lph off");
-    digitalWrite(lph, LOW);   // turn the LED on (HIGH is the voltage level)
+ 
+}
+void lphOn(){
+      digitalWrite(lph, LOW);   // turn the LED on (HIGH is the voltage level)
     lphIsOn = true;
 
-  }
 }
 void mphPulse() {
   if (mphIsOn) {
