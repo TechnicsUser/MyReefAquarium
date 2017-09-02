@@ -17,7 +17,18 @@
 #include <DS1307.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include<stdlib.h>
+#include <stdlib.h>
+#include <NewPing.h>
+
+#define TRIGGER_PIN  11  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN     10  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define MAX_DISTANCE 40 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define RETURNPUMP 20
+
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+
+int returnPumpSpeed = 255;
 char chrTemp [3];
 char chrPh [5];
 
@@ -47,10 +58,10 @@ String incomingString = "abc";   // for incoming serial data
 //Powerheads
 #define lph 2     // RELAY1                        
 #define mph 3     // RELAY2                      
-#define sph 6     // RELAY3   
+#define sph 4     // RELAY3   
 
-#define heater  5 // RELAY4  
-#define skimmer  4 // RELAY5
+#define skimmer  5 // RELAY4  
+#define heater  6 // RELAY5
 
 //Lights
 #define light1  7 // RELAY6                        
@@ -62,9 +73,9 @@ String incomingString = "abc";   // for incoming serial data
 
 //++++++++++++++++++ PH +++++++++++++++++++++++++++++++++++
 
-float volt4 = 2.966;// increment to lower. 3.171 worked ...3.341;
-float volt7 = 2.5108;//2.684;  myCal 2.5108
-float calibrationTempC = 18.1;
+float volt4 = 3.2300; 
+float volt7 = 2.6924; //2.7150
+float calibrationTempC = 21.4;
 int phPin = A1;
 
 
@@ -153,14 +164,25 @@ void setup(void) {
   pinMode(light1, OUTPUT);
   pinMode(light2, OUTPUT);
   pinMode(light3, OUTPUT);
+    pinMode(RETURNPUMP, OUTPUT);
+
+      analogWrite(RETURNPUMP, returnPumpSpeed);   // turn the LED on (HIGH is the voltage level)
+
       digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(500);                       // wait for a second
      digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
+       delay(500);                       // wait for a second
       digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
+     delay(500);   
   digitalWrite(skimmer, HIGH);   // turn the LED on (HIGH is the voltage level)
+      delay(500);   
   digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
-//    digitalWrite(light1, HIGH);   // turn the LED on (HIGH is the voltage level)
-//      digitalWrite(light2, HIGH);   // turn the LED on (HIGH is the voltage level)
-//     digitalWrite(light3, HIGH);   // turn the LED on (HIGH is the voltage level)
+         delay(500);   
+    digitalWrite(light1, HIGH);   // turn the LED on (HIGH is the voltage level)
+         delay(500);   
+      digitalWrite(light2, HIGH);   // turn the LED on (HIGH is the voltage level)
+         delay(500);   
+     digitalWrite(light3, HIGH);   // turn the LED on (HIGH is the voltage level)
 
   //++++++++++++++++++++ CLOCK ++++++++++++++++++++++++++++++++++++++++++++++++
   // Initialize the rtc object
@@ -175,8 +197,16 @@ void setup(void) {
 
   //++++++++++++++++++ LIGHTS +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+/* Super Actinic
+ * Aqua Pink
+ * Actinic +
+ * Reef Spec Pink
+ * Super Purple
+ * Pure Actinic */
+
+
   // create the alarms for lights to trigger at specific times
-  aIdMorningLights =  Alarm.alarmRepeat(10, 00, 00, MorningAlarmAcitic); // 6:30am every day
+   Alarm.alarmRepeat(10, 00, 00, MorningAlarmAcitic); // 6:30am every day
   Alarm.alarmRepeat(10,  30,00, MorningAlarm); // 12:30pm every day
   Alarm.alarmRepeat(11,  30, 00, DayOnAlarm); // 2:30pm every day
   Alarm.alarmRepeat(20, 00, 00, DayOffAlarm); // 8:00 pm every day
@@ -188,11 +218,16 @@ void setup(void) {
 
 
 
-  Alarm.timerRepeat(60, lphPulse);         // lph
-  Alarm.timerRepeat(120, mphPulse);         // lph
-  Alarm.timerRepeat(30, sphPulse);         // lph
+ // Alarm.timerRepeat(95, lphPulse);         
+  Alarm.timerRepeat(1200, mphPulse);         
+//  Alarm.timerRepeat(50, sphPulse);          
 
   //   Alarm.timerRepeat(15, lphPulse);
+
+  //+++++++++++++++ RETURN PUMP ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Alarm.timerRepeat(1, checkSumpLevel);         
+
+
 
   //+++++++++++++++AUTO TOP OFF ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -204,7 +239,7 @@ void setup(void) {
   // +++++++++++++++++++ PH & TEMPRETURE +++++++++++++++++++++++++++++++++++++++++++++++++
 
   sensors.begin();
-  Alarm.timerRepeat(0, 0, 30, readPh);         // ph
+// Alarm.timerRepeat(0, 0, 30, readPh);         // ph
   //  Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
   //
 
@@ -916,6 +951,27 @@ void OnceOnly() {
   Serial.println("This timer only triggers once, stop the 2 second timer");
   lphPulse();
 }
+void checkSumpLevel() {
+  Serial.println("checkSumpLevel");
+  int distance = sonar.ping_cm();
+  Serial.print(distance);
+  if (distance <= 12 ){
+    returnPumpSpeed + 5;
+    if(returnPumpSpeed >= 254)returnPumpSpeed = 254;
+    analogWrite(RETURNPUMP, returnPumpSpeed);   // turn the LED on (HIGH is the voltage level)
+  }
+  if( distance > 12 && distance <15){
+    
+  }
+  else{
+        returnPumpSpeed - 5;
+    if(returnPumpSpeed <= 100)returnPumpSpeed = 100;
+
+        analogWrite(RETURNPUMP, returnPumpSpeed);   // turn the LED on (HIGH is the voltage level)
+
+  }
+
+}
 
 void digitalClockDisplay() {
   // digital clock display of the time
@@ -934,7 +990,8 @@ void digitalClockDisplay() {
   String s = chrTemp;
   //   Serial.println("\n");
 
-  Serial.println("temp" + s);
+//  Serial.println("temp" + s);
+  Serial.println( s);
 
   // char outChar [12];
   // outChar = chrTemp + chrTempIn;
