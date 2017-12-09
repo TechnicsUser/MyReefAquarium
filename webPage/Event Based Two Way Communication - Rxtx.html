@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0070)http://rxtx.qbang.org/wiki/index.php/Event_Based_Two_Way_Communication -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<meta http-equiv="Content-Style-Type" content="text/css">
+		<meta name="generator" content="MediaWiki 1.15.4">
+		<meta name="keywords" content="Event Based Two Way Communication,Discovering comm ports,Two way communcation with the serial port">
+		<link rel="shortcut icon" href="http://rxtx.qbang.org/favicon.ico">
+		<link rel="search" type="application/opensearchdescription+xml" href="http://rxtx.qbang.org/wiki/opensearch_desc.php" title="Rxtx (en)">
+		<link title="Creative Commons" type="application/rdf+xml" href="http://rxtx.qbang.org/wiki/index.php?title=Event_Based_Two_Way_Communication&amp;action=creativecommons" rel="meta">
+		<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html">
+		<link rel="alternate" type="application/rss+xml" title="Rxtx RSS feed" href="http://rxtx.qbang.org/wiki/index.php?title=Special:RecentChanges&amp;feed=rss">
+		<link rel="alternate" type="application/atom+xml" title="Rxtx Atom feed" href="http://rxtx.qbang.org/wiki/index.php?title=Special:RecentChanges&amp;feed=atom">
+		<title>Event Based Two Way Communication - Rxtx</title>
+		<link rel="stylesheet" href="./Event Based Two Way Communication - Rxtx_files/shared.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="./Event Based Two Way Communication - Rxtx_files/commonPrint.css" type="text/css" media="print">
+		<link rel="stylesheet" href="./Event Based Two Way Communication - Rxtx_files/main.css" type="text/css" media="screen">
+		<!--[if lt IE 5.5000]><link rel="stylesheet" href="/wiki/skins/monobook/IE50Fixes.css?207" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 5.5000]><link rel="stylesheet" href="/wiki/skins/monobook/IE55Fixes.css?207" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 6]><link rel="stylesheet" href="/wiki/skins/monobook/IE60Fixes.css?207" type="text/css" media="screen" /><![endif]-->
+		<!--[if IE 7]><link rel="stylesheet" href="/wiki/skins/monobook/IE70Fixes.css?207" type="text/css" media="screen" /><![endif]-->
+		<link rel="stylesheet" href="./Event Based Two Way Communication - Rxtx_files/index.php" type="text/css">
+		<link rel="stylesheet" href="./Event Based Two Way Communication - Rxtx_files/index(1).php" type="text/css" media="print">
+		<link rel="stylesheet" href="./Event Based Two Way Communication - Rxtx_files/index(2).php" type="text/css">
+		<link rel="stylesheet" href="./Event Based Two Way Communication - Rxtx_files/index(3).php" type="text/css">
+		<!--[if lt IE 7]><script type="text/javascript" src="/wiki/skins/common/IEFixes.js?207"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script type="text/javascript">/*<![CDATA[*/
+		var skin = "monobook";
+		var stylepath = "/wiki/skins";
+		var wgArticlePath = "/wiki/index.php/$1";
+		var wgScriptPath = "/wiki";
+		var wgScript = "/wiki/index.php";
+		var wgVariantArticlePath = false;
+		var wgActionPaths = {};
+		var wgServer = "http://rxtx.qbang.org";
+		var wgCanonicalNamespace = "";
+		var wgCanonicalSpecialPageName = false;
+		var wgNamespaceNumber = 0;
+		var wgPageName = "Event_Based_Two_Way_Communication";
+		var wgTitle = "Event Based Two Way Communication";
+		var wgAction = "view";
+		var wgArticleId = "1046";
+		var wgIsArticle = true;
+		var wgUserName = null;
+		var wgUserGroups = null;
+		var wgUserLanguage = "en";
+		var wgContentLanguage = "en";
+		var wgBreakFrames = false;
+		var wgCurRevisionId = 6534;
+		var wgVersion = "1.15.4";
+		var wgEnableAPI = true;
+		var wgEnableWriteAPI = true;
+		var wgSeparatorTransformTable = ["", ""];
+		var wgDigitTransformTable = ["", ""];
+		var wgRestrictionEdit = [];
+		var wgRestrictionMove = [];
+		/*]]>*/</script>
+
+		<script type="text/javascript" src="./Event Based Two Way Communication - Rxtx_files/wikibits.js"><!-- wikibits js --></script><style type="text/css">@import "/wiki/skins/monobook/KHTMLFixes.css";</style>
+		<!-- Head Scripts -->
+		<script type="text/javascript" src="./Event Based Two Way Communication - Rxtx_files/ajax.js"></script>
+		<script type="text/javascript" src="./Event Based Two Way Communication - Rxtx_files/index(4).php"><!-- site js --></script>
+	</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Event_Based_Two_Way_Communication skin-monobook">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+				<h1 id="firstHeading" class="firstHeading">Event Based Two Way Communication</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Rxtx</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="http://rxtx.qbang.org/wiki/index.php/Event_Based_Two_Way_Communication#column-one">navigation</a>, <a href="http://rxtx.qbang.org/wiki/index.php/Event_Based_Two_Way_Communication#searchInput">search</a></div>			<!-- start content -->
+			<p>Below is a simple program that shows how to open a connection to a serial device and then interact with it (receiving data and sending data). One thing to note is that the package gnu.io is used instead of javax.comm, though other than the change in package name the API follows the <a href="http://java.sun.com/products/javacomm/" class="external text" title="http://java.sun.com/products/javacomm/" rel="nofollow">Java Communication API</a>. To find the names of the available ports, see the <a href="http://rxtx.qbang.org/wiki/index.php/Discovering_comm_ports" title="Discovering comm ports">Discovering comm ports</a> example.
+</p><p>This varies from the <a href="http://rxtx.qbang.org/wiki/index.php/Two_way_communcation_with_the_serial_port" title="Two way communcation with the serial port">other</a> 'Two Way Communication' example in that this uses an event to trigger the reading. One advantage of this approach is that you are not having to poll the device to see if data is available.
+</p><p><b>Note:</b>
+</p><p>Make sure that you call the notifyOnDataAvailable() method of the SerialPort with a boolean true parameter. Based on my experience with RXTX, just registering to the SerialPort as a SerialPortEventListener is not enough -- the event will not be propagated unless you do this.
+</p><p><b>Note2:</b>
+</p><p>When all is done be sure to unregister the listener ( method removeEventListener()). otherwise its possible that your program hangs during exiting causing the serial port to be blocked.
+</p>
+<pre>import gnu.io.CommPort;
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+/**
+ * This version of the TwoWaySerialComm example makes use of the 
+ * SerialPortEventListener to avoid polling.
+ *
+ */
+public class TwoWaySerialComm
+{
+    public TwoWaySerialComm()
+    {
+        super();
+    }
+    
+    void connect ( String portName ) throws Exception
+    {
+        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
+        if ( portIdentifier.isCurrentlyOwned() )
+        {
+            System.out.println("Error: Port is currently in use");
+        }
+        else
+        {
+            CommPort commPort = portIdentifier.open(this.getClass().getName(),2000);
+            
+            if ( commPort instanceof SerialPort )
+            {
+                SerialPort serialPort = (SerialPort) commPort;
+                serialPort.setSerialPortParams(57600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+                
+                InputStream in = serialPort.getInputStream();
+                OutputStream out = serialPort.getOutputStream();
+                               
+                (new Thread(new SerialWriter(out))).start();
+                
+                serialPort.addEventListener(new SerialReader(in));
+                serialPort.notifyOnDataAvailable(true);
+
+            }
+            else
+            {
+                System.out.println("Error: Only serial ports are handled by this example.");
+            }
+        }     
+    }
+    
+    /**
+     * Handles the input coming from the serial port. A new line character
+     * is treated as the end of a block in this example. 
+     */
+    public static class SerialReader implements SerialPortEventListener 
+    {
+        private InputStream in;
+        private byte[] buffer = new byte[1024];
+        
+        public SerialReader ( InputStream in )
+        {
+            this.in = in;
+        }
+        
+        public void serialEvent(SerialPortEvent arg0) {
+            int data;
+          
+            try
+            {
+                int len = 0;
+                while ( ( data = in.read()) &gt; -1 )
+                {
+                    if ( data == '\n' ) {
+                        break;
+                    }
+                    buffer[len++] = (byte) data;
+                }
+                System.out.print(new String(buffer,0,len));
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+                System.exit(-1);
+            }             
+        }
+
+    }
+
+    /** */
+    public static class SerialWriter implements Runnable 
+    {
+        OutputStream out;
+        
+        public SerialWriter ( OutputStream out )
+        {
+            this.out = out;
+        }
+        
+        public void run ()
+        {
+            try
+            {                
+                int c = 0;
+                while ( ( c = System.in.read()) &gt; -1 )
+                {
+                    this.out.write(c);
+                }                
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+                System.exit(-1);
+            }            
+        }
+    }
+    
+
+    
+    public static void main ( String[] args )
+    {
+        try
+        {
+            (new TwoWaySerialComm()).connect("COM3");
+        }
+        catch ( Exception e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+
+}
+</pre>
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 4/1000000
+Post-expand include size: 0/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key rxtxdb-rxmw_:pcache:idhash:1046-0!1!0!!en!2!edit=0 and timestamp 20170810035628 -->
+<div class="printfooter">
+Retrieved from "<a href="http://rxtx.qbang.org/wiki/index.php/Event_Based_Two_Way_Communication">http://rxtx.qbang.org/wiki/index.php/Event_Based_Two_Way_Communication</a>"</div>
+						<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<div class="pBody">
+			<ul>
+	
+				 <li id="ca-nstab-main" class="selected"><a href="http://rxtx.qbang.org/wiki/index.php/Event_Based_Two_Way_Communication" title="View the content page [alt-c]" accesskey="c">Page</a></li>
+				 <li id="ca-talk"><a href="http://rxtx.qbang.org/wiki/index.php/Talk:Event_Based_Two_Way_Communication" title="Discussion about the content page [alt-t]" accesskey="t">Discussion</a></li>
+				 <li id="ca-viewsource"><a href="http://rxtx.qbang.org/wiki/index.php?title=Event_Based_Two_Way_Communication&amp;action=edit" title="This page is protected.
+You can view its source [alt-e]" accesskey="e">View source</a></li>
+				 <li id="ca-history"><a href="http://rxtx.qbang.org/wiki/index.php?title=Event_Based_Two_Way_Communication&amp;action=history" title="Past revisions of this page [alt-h]" accesskey="h">History</a></li>			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-login"><a href="http://rxtx.qbang.org/wiki/index.php?title=Special:UserLogin&amp;returnto=Event_Based_Two_Way_Communication" title="You are encouraged to log in; however, it is not mandatory [alt-o]" accesskey="o">Log in / create account</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(/wiki/skins/common/images/wikii.png);" href="http://rxtx.qbang.org/wiki/index.php/Main_Page" title="Visit the main page [alt-z]" accesskey="z"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class="generated-sidebar portlet" id="p-RXTX">
+		<h5>RXTX</h5>
+		<div class="pBody">
+			<ul>
+				<li id="n-Home"><a href="http://rxtx.qbang.org/wiki/index.php/Main_Page">Home</a></li>
+				<li id="n-Downloads"><a href="http://rxtx.qbang.org/wiki/index.php/Download">Downloads</a></li>
+				<li id="n-Installation"><a href="http://rxtx.qbang.org/wiki/index.php/Installation">Installation</a></li>
+				<li id="n-Usage"><a href="http://rxtx.qbang.org/wiki/index.php/Using_RXTX">Usage</a></li>
+				<li id="n-Reporting-bugs"><a href="http://bugzilla.qbang.org/">Reporting bugs</a></li>
+				<li id="n-Mailing-list"><a href="http://rxtx.qbang.org/wiki/index.php/Mailing_list">Mailing list</a></li>
+				<li id="n-License"><a href="http://users.frii.com/jarvi/rxtx/license.html">Licensing:</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="generated-sidebar portlet" id="p-Original_navigation">
+		<h5>Original navigation</h5>
+		<div class="pBody">
+			<ul>
+				<li id="n-mainpage"><a href="http://rxtx.qbang.org/wiki/index.php/Main_Page" title="Visit the main page">Main Page</a></li>
+				<li id="n-portal"><a href="http://rxtx.qbang.org/wiki/index.php/Rxtx:Community_Portal" title="About the project, what you can do, where to find things">Community portal</a></li>
+				<li id="n-currentevents"><a href="http://rxtx.qbang.org/wiki/index.php/Rxtx:Current_events" title="Find background information on current events">Current events</a></li>
+				<li id="n-recentchanges"><a href="http://rxtx.qbang.org/wiki/index.php/Special:RecentChanges" title="The list of recent changes in the wiki [alt-r]" accesskey="r">Recent changes</a></li>
+				<li id="n-randompage"><a href="http://rxtx.qbang.org/wiki/index.php/Special:Random" title="Load a random page [alt-x]" accesskey="x">Random page</a></li>
+				<li id="n-help"><a href="http://rxtx.qbang.org/wiki/index.php/Help:Contents" title="The place to find out">Help</a></li>
+				<li id="n-sitesupport"><a href="http://rxtx.qbang.org/wiki/index.php/Sitesupport-url">sitesupport</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="http://rxtx.qbang.org/wiki/index.php" id="searchform"><div>
+				<input type="hidden" name="title" value="Special:Search">
+				<input id="searchInput" name="search" type="text" title="Search Rxtx [alt-f]" accesskey="f" value="">
+				<input type="submit" name="go" class="searchButton" id="searchGoButton" value="Go" title="Go to a page with this exact name if exists">&nbsp;
+				<input type="submit" name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search the pages for this text">
+			</div></form>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="http://rxtx.qbang.org/wiki/index.php/Special:WhatLinksHere/Event_Based_Two_Way_Communication" title="List of all wiki pages that link here [alt-j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="http://rxtx.qbang.org/wiki/index.php/Special:RecentChangesLinked/Event_Based_Two_Way_Communication" title="Recent changes in pages linked from this page [alt-k]" accesskey="k">Related changes</a></li>
+<li id="t-specialpages"><a href="http://rxtx.qbang.org/wiki/index.php/Special:SpecialPages" title="List of all special pages [alt-q]" accesskey="q">Special pages</a></li>
+				<li id="t-print"><a href="http://rxtx.qbang.org/wiki/index.php?title=Event_Based_Two_Way_Communication&amp;printable=yes" rel="alternate" title="Printable version of this page [alt-p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="http://rxtx.qbang.org/wiki/index.php?title=Event_Based_Two_Way_Communication&amp;oldid=6534" title="Permanent link to this revision of the page">Permanent link</a></li>			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="./Event Based Two Way Communication - Rxtx_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki"></a></div>
+				<div id="f-copyrightico"><a href="http://www.gnu.org/copyleft/fdl.html"><img src="./Event Based Two Way Communication - Rxtx_files/gnu-fdl.png" alt="GNU Free Documentation License 1.2"></a></div>
+			<ul id="f-list">
+					<li id="lastmod"> This page was last modified on 2 April 2010, at 22:33.</li>
+					<li id="viewcount">This page has been accessed 105,668 times.</li>
+					<li id="copyright">Content is available under <a href="http://www.gnu.org/copyleft/fdl.html" class="external " title="http://www.gnu.org/copyleft/fdl.html">GNU Free Documentation License 1.2</a>.</li>
+					<li id="privacy"><a href="http://rxtx.qbang.org/wiki/index.php/Rxtx:Privacy_policy" title="Rxtx:Privacy policy">Privacy policy</a></li>
+					<li id="about"><a href="http://rxtx.qbang.org/wiki/index.php/Rxtx:About" title="Rxtx:About">About Rxtx</a></li>
+					<li id="disclaimer"><a href="http://rxtx.qbang.org/wiki/index.php/Rxtx:General_disclaimer" title="Rxtx:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+</div>
+
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served in 0.187 secs. -->
+</body></html>

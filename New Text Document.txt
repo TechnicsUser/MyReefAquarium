@@ -1,0 +1,18 @@
+NOTES
+
+change timeAlarms.h
+
+#if !defined(dtNBR_ALARMS )
+
+#if defined(__AVR__)
+#define dtNBR_ALARMS 100   // max is 255
+
+#elif defined(ESP8266)
+#define dtNBR_ALARMS 100  // for esp8266 chip - max is 255
+
+#else
+#define dtNBR_ALARMS 100  // assume non-AVR has more memory
+
+#endif
+
+#endif
