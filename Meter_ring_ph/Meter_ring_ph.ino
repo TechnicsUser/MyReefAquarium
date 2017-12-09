@@ -49,16 +49,16 @@ String incomingString = "abc";   // for incoming serial data
 
 //+++++++++++++++ SOLID STATE RELAY'S++++++++++++++++++++
 //Powerheads
-//#define lph 3     // RELAY1                        
-//#define mph 2     // RELAY2                      
-//#define sph 4     // RELAY3   
+//#define lph 3     // RELAY1
+//#define mph 2     // RELAY2
+//#define sph 4     // RELAY3
 //
-//#define skimmer  5 // RELAY4  
+//#define skimmer  5 // RELAY4
 //#define heater  6 // RELAY5
 //
 ////Lights
-//#define light1  7 // RELAY6                        
-//#define light2  8 // RELAY7               
+//#define light1  7 // RELAY6
+//#define light2  8 // RELAY7
 //#define light3  9 // RELAY8
 
 //+++++++++++++++ OLD SKOOL RELAY'S++++++++++++++++++++
@@ -126,26 +126,26 @@ void setup(void) {
   pinMode(light3, OUTPUT);
   //  pinMode(RETURNPUMP, OUTPUT);
 
-  //    analogWrite(RETURNPUMP, returnPumpSpeed);   
-      
-      digitalWrite(lph, HIGH);    
-    delay(500);                        
-     digitalWrite(mph, HIGH);    
-       delay(500);               
-      digitalWrite(sph, HIGH);    
-     delay(500);   
-  digitalWrite(skimmer, HIGH);    
-      delay(500);   
-  digitalWrite(heater, HIGH);   
-         delay(500);   
-    digitalWrite(light1, HIGH);    
-         delay(500);   
-      digitalWrite(light2, HIGH);   
-         delay(500);   
-     digitalWrite(light3, HIGH);  
+  //    analogWrite(RETURNPUMP, returnPumpSpeed);
 
-     //+++++++++++++++++++++ DAILY RESET ++++++++++++++++++++++++++
-   Alarm.alarmRepeat(1, 00, 00, DailyReset); // 1:00am every day
+  digitalWrite(lph, HIGH);
+  delay(500);
+  digitalWrite(mph, HIGH);
+  delay(500);
+  digitalWrite(sph, HIGH);
+  delay(500);
+  digitalWrite(skimmer, HIGH);
+  delay(500);
+  digitalWrite(heater, HIGH);
+  delay(500);
+  digitalWrite(light1, HIGH);
+  delay(500);
+  digitalWrite(light2, HIGH);
+  delay(500);
+  digitalWrite(light3, HIGH);
+
+  //+++++++++++++++++++++ DAILY RESET ++++++++++++++++++++++++++
+  Alarm.alarmRepeat(1, 00, 00, DailyReset); // 1:00am every day
 
   //++++++++++++++++++++ CLOCK ++++++++++++++++++++++++++++++++++++++++++++++++
   // Initialize the rtc object
@@ -160,35 +160,39 @@ void setup(void) {
 
   //++++++++++++++++++ LIGHTS +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-/* Super Actinic
- * Aqua Pink
- * Actinic +
- * Reef Spec Pink
- * Super Purple
- * Pure Actinic */
+  /* Super Actinic
+     Aqua Pink
+     Actinic +
+     Reef Spec Pink
+     Super Purple
+     Pure Actinic */
 
-// actinic 
+  // actinic
   // create the alarms for lights to trigger at specific times
-   Alarm.alarmRepeat(10, 00, 00, MorningAlarmAcitic); // 6:30am every day
-  Alarm.alarmRepeat(11,  30,00, MorningAlarm); // 12:30pm every day
+  Alarm.alarmRepeat(10, 00, 00, MorningAlarmAcitic); // 6:30am every day
+  Alarm.alarmRepeat(11,  30, 00, MorningAlarm); // 12:30pm every day
   Alarm.alarmRepeat(12,  30, 00, DayOnAlarm); // 2:30pm every day
+
+  Alarm.alarmRepeat(14, 00, 00, EveningAlarmAcitic); // 10:30pm every day
+  Alarm.alarmRepeat(19, 00, 00, MorningAlarmAcitic); // 6:30am every day
+
   Alarm.alarmRepeat(20, 00, 00, DayOffAlarm); // 8:00 pm every day
-  Alarm.alarmRepeat(21, 00,00, EveningAlarm); // 9:45pm every day
-  Alarm.alarmRepeat(22,00, 00, EveningAlarmAcitic); // 10:30pm every day
+  Alarm.alarmRepeat(21, 00, 00, EveningAlarm); // 9:45pm every day
+  Alarm.alarmRepeat(22, 00, 00, EveningAlarmAcitic); // 10:30pm every day
 
 
   //+++++++++++++++++ POWERHEADS +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
-  Alarm.timerRepeat(11000, lphPulse);     //7200    
-  Alarm.timerRepeat(1200, mphPulse);         
-//  Alarm.timerRepeat(50, sphPulse);          
+  Alarm.timerRepeat(11000, lphPulse);     //7200
+  Alarm.timerRepeat(1200, mphPulse);
+  //  Alarm.timerRepeat(50, sphPulse);
 
   //   Alarm.timerRepeat(15, lphPulse);
 
   //+++++++++++++++ RETURN PUMP ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- // Alarm.timerRepeat(1, checkSumpLevel);         
+  // Alarm.timerRepeat(1, checkSumpLevel);
 
 
 
@@ -202,7 +206,7 @@ void setup(void) {
   // +++++++++++++++++++ PH & TEMPRETURE +++++++++++++++++++++++++++++++++++++++++++++++++
 
   sensors.begin();
- Alarm.timerRepeat(0, 0, 30, readPh);         // ph
+  Alarm.timerRepeat(0, 0, 30, readTemp);         // ph
   //  Alarm.timerRepeat(0, 5, 5, checkTopUp);         // Auto top-up
   //
 
@@ -223,7 +227,7 @@ void setup(void) {
   //      Serial.println(F("failed!"));
   //      //return;
   //    }
- // Serial.print("Initializing SD card...");
+  // Serial.print("Initializing SD card...");
 
   // see if the card is present and can be initialized:
   if (!SD.begin(SDC_CS)) {
@@ -234,11 +238,11 @@ void setup(void) {
   Serial.println("card initialized.");
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 }
-void DailyReset(){
- // Time  t;
-    t = rtc.getTime();
+void DailyReset() {
+  // Time  t;
+  t = rtc.getTime();
   setTime(t.hour, t.min, t.sec, t.mon, t.date, t.year); // set time
-  
+
 }
 void loop() {
   // send data only when you receive data:
@@ -266,30 +270,30 @@ void loop() {
 
   }
 
-//  if (incomingString.startsWith("light1")) {
-//    // use Alarm.free() to disable a timer and recycle its memory.
-//    Alarm.free(aIdMorningLights);
-//    // optional, but safest to "forget" the ID after memory recycled
-//    aIdMorningLights = dtINVALID_ALARM_ID;
-//    // you can also use Alarm.disable() to turn the timer off, but keep
-//    // it in memory, to turn back on later with Alarm.enable().
-//
-//    String strHour = incomingString.substring(6, 7);
-//    int intHour = strHour.toInt();
-//    String strMin = incomingString.substring(8, 9);
-//    int intMin = strMin.toInt();
-//    String strSec = incomingString.substring(10, 11);
-//    int intSec = strSec.toInt();
-//    aIdMorningLights =  Alarm.alarmRepeat(intHour, intMin, intSec, MorningAlarmAcitic); // 6:30am every day
-//    Serial.print(strHour + strMin + strSec);
-//
-//  }
+  //  if (incomingString.startsWith("light1")) {
+  //    // use Alarm.free() to disable a timer and recycle its memory.
+  //    Alarm.free(aIdMorningLights);
+  //    // optional, but safest to "forget" the ID after memory recycled
+  //    aIdMorningLights = dtINVALID_ALARM_ID;
+  //    // you can also use Alarm.disable() to turn the timer off, but keep
+  //    // it in memory, to turn back on later with Alarm.enable().
+  //
+  //    String strHour = incomingString.substring(6, 7);
+  //    int intHour = strHour.toInt();
+  //    String strMin = incomingString.substring(8, 9);
+  //    int intMin = strMin.toInt();
+  //    String strSec = incomingString.substring(10, 11);
+  //    int intSec = strSec.toInt();
+  //    aIdMorningLights =  Alarm.alarmRepeat(intHour, intMin, intSec, MorningAlarmAcitic); // 6:30am every day
+  //    Serial.print(strHour + strMin + strSec);
+  //
+  //  }
 
 
   digitalClockDisplay(t);
 
 
- Alarm.delay(1000); // wait one second between clock display
+  Alarm.delay(1000); // wait one second between clock display
   //    }
 }
 

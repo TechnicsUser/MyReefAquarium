@@ -21,12 +21,12 @@ float avgPHVolts = 0;
 float avgVoltsPerPH = 0;
 float phTemp = 0;
 String dataString = "";
-float volt4 = 3.2300; 
+float volt4 = 3.2300;
 float volt7 = 2.6924; //2.7150
 float calibrationTempC = 21.4;
 int phPin = A1;
 
-  int xAxis =0;
+int xAxis = 0;
 boolean heaterOn = true;
 
 float getTempAdjusted4()
@@ -83,7 +83,7 @@ float measureTempC()
   sensors.requestTemperatures(); // Send the command to get temperatures
   //  Serial.println("DONE");
   //  Serial.print("Temperature for the device 1 (index 0) is: ");
-  float s=sensors.getTempCByIndex(0);
+  float s = sensors.getTempCByIndex(0);
 
   //  float tempADC = analogRead(tempPin);
   //  float tempVolts = (tempADC / 1024) * 5.0;
@@ -222,27 +222,27 @@ void readPh() {
     minTemp = avgTemp;
 
   }
-  if(tempC <= 25.5){
-    if(heaterOn == false){
-      
-   
-    digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
-Serial.println("");
-Serial.println("*LR252G0B0");
-    Serial.print("*S");
-    heaterOn = true;
+  if (tempC <= 25.5) {
+    if (heaterOn == false) {
+
+
+      digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
+      Serial.println("");
+      Serial.println("*LR252G0B0");
+      Serial.print("*S");
+      heaterOn = true;
     }
 
   }
-    if(tempC >= 25.51){
-      if(heaterOn){
-        
-      
-    digitalWrite(heater, LOW);   // turn the LED on (HIGH is the voltage level)
-   Serial.println("");
-    Serial.println("*LR150G150B150");
-    heaterOn = false;
-      }
+  if (tempC >= 25.51) {
+    if (heaterOn) {
+
+
+      digitalWrite(heater, LOW);   // turn the LED on (HIGH is the voltage level)
+      Serial.println("");
+      Serial.println("*LR150G150B150");
+      heaterOn = false;
+    }
 
   }
   //  phTime[0] = h + phRunTime[0];
@@ -251,21 +251,21 @@ Serial.println("*LR252G0B0");
   //  lastReadPhTime = rtc.getTime();
 
   //  Serial.print(" measuredPH = ");
-//  dtostrf(avgMeasuredPH, 6, 4, chrPh);
-//  String s = chrPh;
-// Serial.print("ph" + avgMeasuredPH);
+  //  dtostrf(avgMeasuredPH, 6, 4, chrPh);
+  //  String s = chrPh;
+  // Serial.print("ph" + avgMeasuredPH);
   //    Serial.print(" roomTempMeasuredPH-");
   //    Serial.print(avgRoomTempMeasuredPH,4);
-       Serial.println("");
+  Serial.println("");
 
-    Serial.print("*H");
+  Serial.print("*H");
 
-    Serial.print("X");
-        Serial.print(xAxis++);
+  Serial.print("X");
+  Serial.print(xAxis++);
 
-    Serial.print("Y");
-      Serial.print(avgMeasuredPH);
-    Serial.print("*");
+  Serial.print("Y");
+  Serial.print(avgMeasuredPH);
+  Serial.print("*");
 
   //    Serial.print(avgTemp,4);
   //    Serial.print(" phVolts-");
@@ -280,3 +280,31 @@ Serial.println("*LR252G0B0");
   // dataString += t.hour;
   // writeToSd();
 }
+void readTemp() {
+  float tempC = sensors.getTempCByIndex(0);
+  if (tempC <= 25.5) {
+    if (heaterOn == false) {
+
+
+      digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
+      Serial.println("");
+      Serial.println("*LR252G0B0");
+      Serial.print("*S");
+      heaterOn = true;
+    }
+
+  }
+  if (tempC >= 25.51) {
+    if (heaterOn) {
+
+
+      digitalWrite(heater, LOW);   // turn the LED on (HIGH is the voltage level)
+      Serial.println("");
+      Serial.println("*LR150G150B150");
+      heaterOn = false;
+    }
+
+  }
+
+}
+
