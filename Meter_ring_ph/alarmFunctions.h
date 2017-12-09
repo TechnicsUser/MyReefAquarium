@@ -6,8 +6,8 @@ boolean mphIsOn = false;
 boolean sphIsOn = false;
 boolean skimmerPower = false;
 boolean heaterPower = false;
-#define lph 2     // RELAY1                        
-#define mph 3     // RELAY2                      
+#define lph 3     // RELAY1                        
+#define mph 2     // RELAY2                      
 #define sph 4     // RELAY3   
 
 #define skimmer  5 // RELAY4  
@@ -86,6 +86,9 @@ void mphPulse() {
     //   Serial.println("Alarm: - mph off");
     digitalWrite(mph, LOW);   // turn the LED on (HIGH is the voltage level)
     mphIsOn = false;
+    digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
+      lphIsOn = true;
+
 
   }
 }
@@ -135,6 +138,7 @@ void OnceOnly() {
   Serial.println("This timer only triggers once, stop the 2 second timer");
   lphPulse();
 }
+
 
 void digitalClockDisplay(Time t) {
   // digital clock display of the time

@@ -98,8 +98,6 @@ Planned features for the controller:
 
 
 
-100. Video (openCv)
-	use kinnect for live video streaming and growth monitoring
 
 
 

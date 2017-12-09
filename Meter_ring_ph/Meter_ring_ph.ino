@@ -49,17 +49,17 @@ String incomingString = "abc";   // for incoming serial data
 
 //+++++++++++++++ SOLID STATE RELAY'S++++++++++++++++++++
 //Powerheads
-#define lph 2     // RELAY1                        
-#define mph 3     // RELAY2                      
-#define sph 4     // RELAY3   
-
-#define skimmer  5 // RELAY4  
-#define heater  6 // RELAY5
-
-//Lights
-#define light1  7 // RELAY6                        
-#define light2  8 // RELAY7               
-#define light3  9 // RELAY8
+//#define lph 3     // RELAY1                        
+//#define mph 2     // RELAY2                      
+//#define sph 4     // RELAY3   
+//
+//#define skimmer  5 // RELAY4  
+//#define heater  6 // RELAY5
+//
+////Lights
+//#define light1  7 // RELAY6                        
+//#define light2  8 // RELAY7               
+//#define light3  9 // RELAY8
 
 //+++++++++++++++ OLD SKOOL RELAY'S++++++++++++++++++++
 // TODO
@@ -124,25 +124,28 @@ void setup(void) {
   pinMode(light1, OUTPUT);
   pinMode(light2, OUTPUT);
   pinMode(light3, OUTPUT);
-    pinMode(RETURNPUMP, OUTPUT);
+  //  pinMode(RETURNPUMP, OUTPUT);
 
-      analogWrite(RETURNPUMP, returnPumpSpeed);   // turn the LED on (HIGH is the voltage level)
-
-      digitalWrite(lph, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(500);                       // wait for a second
-     digitalWrite(mph, HIGH);   // turn the LED on (HIGH is the voltage level)
-       delay(500);                       // wait for a second
-      digitalWrite(sph, HIGH);   // turn the LED on (HIGH is the voltage level)
+  //    analogWrite(RETURNPUMP, returnPumpSpeed);   
+      
+      digitalWrite(lph, HIGH);    
+    delay(500);                        
+     digitalWrite(mph, HIGH);    
+       delay(500);               
+      digitalWrite(sph, HIGH);    
      delay(500);   
-  digitalWrite(skimmer, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(skimmer, HIGH);    
       delay(500);   
-  digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(heater, HIGH);   
          delay(500);   
-    digitalWrite(light1, HIGH);   // turn the LED on (HIGH is the voltage level)
+    digitalWrite(light1, HIGH);    
          delay(500);   
-      digitalWrite(light2, HIGH);   // turn the LED on (HIGH is the voltage level)
+      digitalWrite(light2, HIGH);   
          delay(500);   
-     digitalWrite(light3, HIGH);   // turn the LED on (HIGH is the voltage level)
+     digitalWrite(light3, HIGH);  
+
+     //+++++++++++++++++++++ DAILY RESET ++++++++++++++++++++++++++
+   Alarm.alarmRepeat(1, 00, 00, DailyReset); // 1:00am every day
 
   //++++++++++++++++++++ CLOCK ++++++++++++++++++++++++++++++++++++++++++++++++
   // Initialize the rtc object
@@ -164,11 +167,11 @@ void setup(void) {
  * Super Purple
  * Pure Actinic */
 
-
+// actinic 
   // create the alarms for lights to trigger at specific times
-   Alarm.alarmRepeat(9, 00, 00, MorningAlarmAcitic); // 6:30am every day
-  Alarm.alarmRepeat(10,  00,00, MorningAlarm); // 12:30pm every day
-  Alarm.alarmRepeat(11,  00, 00, DayOnAlarm); // 2:30pm every day
+   Alarm.alarmRepeat(10, 00, 00, MorningAlarmAcitic); // 6:30am every day
+  Alarm.alarmRepeat(11,  30,00, MorningAlarm); // 12:30pm every day
+  Alarm.alarmRepeat(12,  30, 00, DayOnAlarm); // 2:30pm every day
   Alarm.alarmRepeat(20, 00, 00, DayOffAlarm); // 8:00 pm every day
   Alarm.alarmRepeat(21, 00,00, EveningAlarm); // 9:45pm every day
   Alarm.alarmRepeat(22,00, 00, EveningAlarmAcitic); // 10:30pm every day
@@ -178,7 +181,7 @@ void setup(void) {
 
 
 
-  Alarm.timerRepeat(7200, lphPulse);     //7200    
+  Alarm.timerRepeat(11000, lphPulse);     //7200    
   Alarm.timerRepeat(1200, mphPulse);         
 //  Alarm.timerRepeat(50, sphPulse);          
 
@@ -231,7 +234,12 @@ void setup(void) {
   Serial.println("card initialized.");
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 }
-
+void DailyReset(){
+ // Time  t;
+    t = rtc.getTime();
+  setTime(t.hour, t.min, t.sec, t.mon, t.date, t.year); // set time
+  
+}
 void loop() {
   // send data only when you receive data:
   if (Serial.available() > 0) {
@@ -254,10 +262,7 @@ void loop() {
       Serial.print(skimmerPower);
       flipSkimmer();
     }
-    //                // say what you got:
-    //                Serial.print("I received: ");
-    //                Serial.println(incomingString);
-    //                String Slph = "lph";
+
 
   }
 
