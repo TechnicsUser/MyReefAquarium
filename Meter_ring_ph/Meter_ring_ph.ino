@@ -10,32 +10,39 @@
 
 */
 #include <TFT_HX8357.h>
-#include <SD.h>
+//#include <SD.h>
 #include <TimeLib.h>
 #include <TimeAlarms.h>
 #include <DS1307.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <stdlib.h>
-#include <NewPing.h>
-#include "phAndTemp.h"
+//#include <NewPing.h>
+//#include "phAndTemp.h"
 #include "display.h"
 #include "sdCard.h"
 #include"alarmFunctions.h"
+//
+//#define TRIGGER_PIN  11  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+//#define ECHO_PIN     10  // Arduino pin tied to echo pin on the ultrasonic sensor.
+//#define MAX_DISTANCE 40 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+//#define RETURNPUMP 20
 
-#define TRIGGER_PIN  11  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN     10  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define MAX_DISTANCE 40 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-#define RETURNPUMP 20
+// Data wire is plugged into port 2 on the Arduino
+#define ONE_WIRE_BUS A0
+// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+OneWire oneWire(ONE_WIRE_BUS);
+// Pass our oneWire reference to Dallas Temperature.
+DallasTemperature sensors(&oneWire);
 
-
-NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+//NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 int returnPumpSpeed = 255;
 char chrTemp [3];
 char chrPh [5];
 
 char chrTempIn [6];
+boolean heaterOn = true;
 
 
 
@@ -211,9 +218,9 @@ void setup(void) {
   //
 
   //++++++++++++++++++++ DISPLAY ++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  tft.begin();
-  tft.setRotation(1);
-  tft.fillScreen(HX8357_BLACK);
+//  tft.begin();
+//  tft.setRotation(1);
+//  tft.fillScreen(HX8357_BLACK);
   //Alarm.timerRepeat(2, updateDisplay);           // Display
 
 
@@ -230,14 +237,15 @@ void setup(void) {
   // Serial.print("Initializing SD card...");
 
   // see if the card is present and can be initialized:
-  if (!SD.begin(SDC_CS)) {
-    Serial.println("Card failed, or not present");
-    // don't do anything more:
-    return;
-  }
-  Serial.println("card initialized.");
+//  if (!SD.begin(SDC_CS)) {
+//    Serial.println("Card failed, or not present");
+//    // don't do anything more:
+//    return;
+//  }
+//  Serial.println("card initialized.");
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 }
+
 void DailyReset() {
   // Time  t;
   t = rtc.getTime();
@@ -270,6 +278,7 @@ void loop() {
 
   }
 
+
   //  if (incomingString.startsWith("light1")) {
   //    // use Alarm.free() to disable a timer and recycle its memory.
   //    Alarm.free(aIdMorningLights);
@@ -290,14 +299,44 @@ void loop() {
   //  }
 
 
-  digitalClockDisplay(t);
+ // digitalClockDisplay(sensors.getTempCByIndex(0));
+  sensors.requestTemperatures(); // Send the command to get temperatures
 
+  Serial.println(sensors.getTempCByIndex(0));
 
   Alarm.delay(1000); // wait one second between clock display
   //    }
 }
 
+void readTemp() {
+    sensors.requestTemperatures(); // Send the command to get temperatures
 
+  float tempC = sensors.getTempCByIndex(0);
+  if (tempC <= 25.5) {
+    if (heaterOn == false) {
+
+
+      digitalWrite(heater, HIGH);   // turn the LED on (HIGH is the voltage level)
+      Serial.println("");
+      Serial.println("*LR252G0B0");
+      Serial.print("*S");
+      heaterOn = true;
+    }
+
+  }
+  if (tempC >= 25.51) {
+    if (heaterOn) {
+
+
+      digitalWrite(heater, LOW);   // turn the LED on (HIGH is the voltage level)
+      Serial.println("");
+      Serial.println("*LR150G150B150");
+      heaterOn = false;
+    }
+
+  }
+
+}
 
 /*
 

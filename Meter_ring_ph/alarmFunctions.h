@@ -114,7 +114,7 @@ void EveningAlarmAcitic() {
   digitalWrite(light1, LOW);   // turn the LED on (HIGH is the voltage level)
 }
 void updateDisplay() {
-  ringMeter(maxPh, minPh, minTemp, maxTemp, avgRoomTempMeasuredPH, avgTemp, 6, 9, xpos, ypos, radius, " Ph", GREEN2RED );
+//  ringMeter(maxPh, minPh, minTemp, maxTemp, avgRoomTempMeasuredPH, avgTemp, 6, 9, xpos, ypos, radius, " Ph", GREEN2RED );
   Serial.println("ring meter");
 
 }
@@ -140,7 +140,7 @@ void OnceOnly() {
 }
 
 
-void digitalClockDisplay(Time t) {
+void digitalClockDisplay(float t) {
   // digital clock display of the time
 //  t = rtc.getTime();
   // Serial.print( t.hour + t.min + t.sec);
@@ -160,7 +160,7 @@ void digitalClockDisplay(Time t) {
  Serial.println();
     Serial.print("*T");
 
-  Serial.print( sensors.getTempCByIndex(0));
+  Serial.print( t);
 
 
    Serial.println();
@@ -170,7 +170,7 @@ void digitalClockDisplay(Time t) {
       Serial.print(xAxisTemp++);
 
     Serial.print("Y");
-  Serial.print( sensors.getTempCByIndex(0));
+  Serial.print( t);
     Serial.print("*");
 
   // char outChar [12];
